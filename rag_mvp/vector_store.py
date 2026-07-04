@@ -52,7 +52,10 @@ class VectorStore:
         if self.collection.count() == 0:
             return []
         query_embedding = self.embedder.encode(query, normalize_embeddings=True, show_progress_bar=False).tolist()
-        result = self.collection.query(query_embeddings=[query_embedding], n_results=min(top_k, self.collection.count()))
+        result = self.collection.query(
+            query_embeddings=[query_embedding],
+            n_results=min(top_k, self.collection.count()),
+        )
         rows: list[dict] = []
         for doc, metadata, distance, chunk_id in zip(
             result["documents"][0],

@@ -1,3 +1,3 @@
 question,ground_truth
-Ung dung nay dung model local nao?,Ung dung dung Ollama voi model Qwen mac dinh la qwen2.5:7b.
-Embedding model mac dinh la gi?,Embedding model mac dinh la BAAI/bge-m3 de ho tro retrieval da ngon ngu bao gom tieng Viet.
+Which local model does the application use by default?,The application uses Ollama with qwen2.5:7b by default.
+Which embedding model does the application use by default?,The application uses BAAI/bge-m3 as the default embedding model.

@@ -11,7 +11,6 @@ import pandas as pd
 
 from rag_mvp.pipeline import RagPipeline
 
-
 REFUSAL_PATTERNS = (
     "kh\u00f4ng \u0111\u1ee7 th\u00f4ng tin",
     "kh\u00f4ng t\u00ecm th\u1ea5y",

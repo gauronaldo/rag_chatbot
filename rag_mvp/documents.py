@@ -9,7 +9,6 @@ from typing import BinaryIO
 
 from pypdf import PdfReader
 
-
 SUPPORTED_EXTENSIONS = {".md", ".txt", ".pdf"}
 
 
@@ -32,7 +31,7 @@ def stable_id(text: str) -> str:
 
 
 def preprocess_text(text: str) -> str:
-    """Normalize text for Vietnamese RAG without stripping accents."""
+    """Normalize document text before chunking."""
     text = unicodedata.normalize("NFC", text)
     text = text.replace("\r\n", "\n").replace("\r", "\n")
     text = "".join(ch for ch in text if ch == "\n" or ch == "\t" or not unicodedata.category(ch).startswith("C"))

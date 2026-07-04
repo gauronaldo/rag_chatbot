@@ -4,13 +4,12 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 
-
 ROOT_PATH = Path(__file__).resolve().parents[1]
 
 
 @dataclass(frozen=True)
 class AppConfig:
-    app_title: str = "Vietnamese RAG Assistant"
+    app_title: str = "English RAG Assistant"
     docs_dir: Path = ROOT_PATH / "docs"
     vector_store_dir: Path = ROOT_PATH / "vector_store" / "rag_mvp"
     registry_path: Path = ROOT_PATH / "vector_store" / "rag_mvp_registry.json"

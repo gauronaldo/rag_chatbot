@@ -1,36 +1,32 @@
-# Multilingual RAG Assistant
+# English RAG Assistant
 
-Local-first Retrieval-Augmented Generation MVP for Vietnamese and English document Q&A.
+Local-first Retrieval-Augmented Generation MVP for English document Q&A.
 
 This project is designed as a portfolio-ready RAG application: small enough to run locally, but complete enough to show
 the full pipeline from ingestion to retrieval, generation, citation, and evaluation.
 
 ## Features
 
-- Streamlit app for upload, chat, source inspection, and evaluation.
+- Streamlit app for upload, chat, and source inspection.
 - Local LLM through Ollama, defaulting to `qwen2.5:7b`.
-- Multilingual retrieval with `BAAI/bge-m3`, suitable for Vietnamese and English documents.
+- Retrieval embeddings with `BAAI/bge-m3`.
 - Chroma persistent vector store.
 - JSON document registry for incremental indexing and precise chunk deletion.
-- Same-language prompting with source citations like `[S1]`: English questions get English answers, Vietnamese questions get Vietnamese answers.
-- The answer prompt prevents Chinese fallback responses unless the user explicitly asks in Chinese.
+- English-only prompting with source citations like `[S1]`.
 - Evaluation layer with custom MVP metrics and an optional RAGAS core metrics runner.
 
 ## Architecture
 
-```mermaid
-flowchart LR
-    A["Upload .md/.txt/.pdf"] --> B["Preprocess Vietnamese text"]
-    B --> C["Chunk documents"]
-    C --> D["Embed with BAAI/bge-m3"]
-    D --> E["Chroma vector store"]
-    C --> F["JSON document registry"]
-    Q["User question"] --> R["Retrieve top-k chunks"]
-    E --> R
-    R --> P["Same-language RAG prompt with citations"]
-    P --> L["Ollama: qwen2.5:7b"]
-    L --> O["Answer + sources + latency"]
-```
+The MVP has one local Streamlit entrypoint and a small Python package:
+
+1. Users upload `.md`, `.txt`, or `.pdf` files in Streamlit.
+2. The loader decodes and normalizes text.
+3. The chunker splits documents and preserves source metadata.
+4. `BAAI/bge-m3` embeds chunks and stores them in Chroma.
+5. The JSON registry stores document IDs, version hashes, and chunk IDs.
+6. User questions retrieve top-k chunks from Chroma.
+7. The prompt instructs Ollama/Qwen to answer in English with citations.
+8. The app displays the answer, latency, and retrieved contexts.
 
 ## Setup
 
@@ -83,11 +79,11 @@ compatible.
 ## How It Works
 
 1. Upload `.md`, `.txt`, or `.pdf` files in the sidebar.
-2. The loader decodes text with Vietnamese-safe fallbacks and normalizes Unicode to NFC.
-3. The chunker splits documents while preserving Vietnamese accents and source metadata.
+2. The loader decodes text and normalizes Unicode to NFC.
+3. The chunker splits documents while preserving source metadata.
 4. `BAAI/bge-m3` embeds chunks and stores them in Chroma.
 5. The JSON registry stores document IDs, version hashes, and chunk IDs.
-6. At question time, the app retrieves top-k chunks and builds a same-language prompt.
+6. At question time, the app retrieves top-k chunks and builds an English-only RAG prompt.
 7. Ollama runs Qwen locally and returns an answer with citations.
 8. The UI displays the answer, latency, and retrieved contexts.
 
@@ -111,8 +107,26 @@ The optional RAGAS core runner targets:
 A sample evaluation file is available at `evaluation/sample_eval_set.csv`. Results are saved to
 `reports/rag_mvp_eval_results.csv`.
 
-Run evaluation from the Streamlit `Evaluation` tab after indexing documents. Custom metrics run locally. RAGAS core
-metrics may require an evaluator LLM/embedding setup supported by your installed RAGAS version.
+Run evaluation after indexing documents:
+
+```powershell
+.\.venv\Scripts\python -m rag_mvp.run_evaluation
+```
+
+Use a custom dataset:
+
+```powershell
+.\.venv\Scripts\python -m rag_mvp.run_evaluation --dataset evaluation\sample_eval_set.csv
+```
+
+Run optional RAGAS metrics after the custom metrics:
+
+```powershell
+.\.venv\Scripts\python -m rag_mvp.run_evaluation --ragas
+```
+
+Custom metrics run locally. RAGAS core metrics may require an evaluator LLM/embedding setup supported by your installed
+RAGAS version.
 
 ## JSON Registry
 
@@ -124,7 +138,7 @@ This keeps setup simple and avoids database services for a local portfolio demo.
 ```text
 rag_mvp/
   config.py          Runtime config
-  documents.py       Loading, decoding, Vietnamese preprocessing, chunking
+  documents.py       Loading, decoding, preprocessing, chunking
   registry.py        JSON document registry
   vector_store.py    Chroma + BAAI/bge-m3 retrieval
   ollama_client.py   Local Ollama generation
@@ -136,5 +150,4 @@ tests/               Unit tests
 requirements.txt     Python dependencies for venv + pip setup
 ```
 
-The older FastAPI/React implementation remains in `backend/` and `frontend/` as reference code, but the MVP entrypoint
-is `streamlit_app.py`.
+The MVP entrypoint is `streamlit_app.py`.

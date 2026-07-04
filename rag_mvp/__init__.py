@@ -1,4 +1,4 @@
-"""Vietnamese-first local RAG MVP package."""
+"""English local RAG MVP package."""
 
 __all__ = [
     "config",

@@ -9,14 +9,11 @@ from rag_mvp.ollama_client import OllamaClient
 from rag_mvp.registry import DocumentRecord, JsonDocumentRegistry
 from rag_mvp.vector_store import VectorStore
 
-
 SYSTEM_PROMPT = (
-    "You are a multilingual RAG assistant.\n"
-    "Answer in the same language as the user's question.\n"
-    "If the question is in English, answer in English. If the question is in Vietnamese, answer in Vietnamese.\n"
-    "Do not answer in Chinese unless the user's question is explicitly in Chinese.\n"
+    "You are an English-only RAG assistant.\n"
+    "Answer only in English, even if the user's question uses another language.\n"
     "Use only the provided context. If the context is insufficient, say that the answer was not found in the context, "
-    "using the same language as the question.\n"
+    "in English.\n"
     "Keep the answer concise and structured.\n"
     "When using information from documents, cite sources as [S1], [S2], ...\n"
 )
@@ -89,7 +86,7 @@ class RagPipeline:
             f"{SYSTEM_PROMPT}\n"
             f"Context:\n{context_text}\n\n"
             f"Question:\n{question}\n\n"
-            f"Answer in the same language as the question, with citations:\n"
+            f"Answer in English with citations:\n"
         )
 
     def answer(self, question: str) -> dict:
