@@ -30,16 +30,49 @@ class EvaluationRow:
     answer: str
     contexts: list[str]
     latency_ms: float
+    expected_behavior: str = "answer"
+    required_citation: str = "yes"
 
 
 def extract_citations(answer: str) -> set[int]:
     return {int(match) for match in re.findall(r"\[S(\d+)\]", answer)}
 
 
-def false_refusal(answer: str, ground_truth: str) -> int:
-    refused = any(pattern in answer.lower() for pattern in REFUSAL_PATTERNS)
+def is_refusal(answer: str) -> bool:
+    normalized = answer.lower()
+    return any(pattern in normalized for pattern in REFUSAL_PATTERNS)
+
+
+def is_not_supported(answer: str) -> bool:
+    normalized = answer.lower()
+    return (
+        is_refusal(answer)
+        or "not found" in normalized
+        or "not supported" in normalized
+        or "does not support" in normalized
+        or "does not show" in normalized
+        or "does not suggest" in normalized
+        or "does not conclusively state" in normalized
+        or "cannot be concluded" in normalized
+        or "do not explicitly confirm" in normalized
+        or "not explicitly state" in normalized
+        or "not identified" in normalized
+    )
+
+
+def false_refusal(answer: str, ground_truth: str, expected_behavior: str = "answer") -> int:
+    refused = is_refusal(answer)
+    answer_expected = expected_behavior in {"answer", "claim_verification"}
     answerable = bool(ground_truth.strip())
-    return int(refused and answerable)
+    return int(refused and answerable and answer_expected)
+
+
+def expected_behavior_accuracy(answer: str, expected_behavior: str) -> float:
+    if expected_behavior == "refuse":
+        return float(is_refusal(answer) or "not found" in answer.lower())
+    if expected_behavior == "state_not_supported":
+        return float(is_not_supported(answer))
+    return 1.0
 
 
 def citation_accuracy(answer: str, contexts: list[str]) -> float:
@@ -81,10 +114,19 @@ def unsupported_claim_accuracy(answer: str, contexts: list[str]) -> float:
 
 
 def evaluate_custom(row: EvaluationRow) -> dict[str, float]:
+    citations = extract_citations(row.answer)
+    citation_required = str(row.required_citation).strip().lower() != "no"
+    citation_score = citation_accuracy(row.answer, row.contexts)
+    strict_citation_score = citation_strict_accuracy(row.answer, row.contexts, row.ground_truth)
+    if not citation_required and not citations:
+        citation_score = 1.0
+        strict_citation_score = 1.0
+
     return {
-        "false_refusal": false_refusal(row.answer, row.ground_truth),
-        "citation_accuracy": citation_accuracy(row.answer, row.contexts),
-        "citation_strict_accuracy": citation_strict_accuracy(row.answer, row.contexts, row.ground_truth),
+        "false_refusal": false_refusal(row.answer, row.ground_truth, row.expected_behavior),
+        "expected_behavior_accuracy": expected_behavior_accuracy(row.answer, row.expected_behavior),
+        "citation_accuracy": citation_score,
+        "citation_strict_accuracy": strict_citation_score,
         "unsupported_claim_accuracy": unsupported_claim_accuracy(row.answer, row.contexts),
         "latency_ms": row.latency_ms,
     }
@@ -104,9 +146,13 @@ def run_local_evaluation(pipeline: RagPipeline, dataset_path: Path, output_path:
             answer=result["answer"],
             contexts=contexts,
             latency_ms=float(latency_ms),
+            expected_behavior=str(item.get("expected_behavior", "answer")),
+            required_citation=str(item.get("required_citation", "yes")),
         )
+        metadata = {key: value for key, value in item.items() if key not in {"question", "ground_truth"}}
         rows.append(
             {
+                **metadata,
                 "question": eval_row.question,
                 "ground_truth": eval_row.ground_truth,
                 "answer": eval_row.answer,

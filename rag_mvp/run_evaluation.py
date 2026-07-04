@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
 
 from rag_mvp.config import get_config
@@ -34,11 +35,23 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
+
     args = parse_args()
     pipeline = RagPipeline(get_config())
     frame = run_local_evaluation(pipeline, args.dataset, args.output)
     print(f"Saved custom evaluation results to {args.output}")
-    print(frame.to_string(index=False))
+    display_columns = [
+        "question",
+        "false_refusal",
+        "expected_behavior_accuracy",
+        "citation_accuracy",
+        "citation_strict_accuracy",
+        "unsupported_claim_accuracy",
+        "latency_ms",
+    ]
+    print(frame[display_columns].to_string(index=False))
 
     if args.ragas:
         if not ragas_metrics_available():
