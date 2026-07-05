@@ -46,6 +46,32 @@ This section summarizes the findings.
     assert table_chunks[0].metadata["table_id"] == "3"
 
 
+def test_split_strips_markdown_emphasis_from_section_metadata():
+    content = """# **Concluding Remarks**
+
+The paper finds minimum wages affect informal wages directly.
+"""
+    doc = load_file("demo.md", content.encode("utf-8"))
+    chunks = split_into_chunks(doc, chunk_size=300, chunk_overlap=20)
+    assert chunks[0].metadata["section"] == "Concluding Remarks"
+
+
+def test_split_detects_concluding_remarks_heading():
+    content = """# Results
+
+The results section ends here.
+
+Concluding Remarks
+
+The paper finds minimum wages affect informal wages directly.
+"""
+    doc = load_file("demo.md", content.encode("utf-8"))
+    chunks = split_into_chunks(doc, chunk_size=300, chunk_overlap=20)
+    concluding_chunks = [chunk for chunk in chunks if chunk.metadata.get("section") == "Concluding Remarks"]
+    assert concluding_chunks
+    assert "affect informal wages directly" in concluding_chunks[0].text
+
+
 def test_split_preserves_figure_caption_metadata():
     content = """# Results
 
@@ -130,9 +156,14 @@ def test_metadata_boost_prioritizes_named_section():
 def test_query_maps_conclusion_to_concluding_remarks():
     features = VectorStore._query_features("What is the conclusion?")
     conclusion_text = {"content_type": "text", "section": "Concluding Remarks"}
+    bold_conclusion_text = {"content_type": "text", "section": "**Concluding Remarks**"}
     method_text = {"content_type": "text", "section": "A Differences-in-Differences Strategy"}
     assert features["section_name"] == "Concluding Remarks"
     assert VectorStore._metadata_boost(features, conclusion_text) > VectorStore._metadata_boost(features, method_text)
+    assert VectorStore._metadata_boost(features, bold_conclusion_text) > VectorStore._metadata_boost(
+        features,
+        method_text,
+    )
 
 
 def test_json_registry_round_trip(tmp_path: Path):

@@ -6,7 +6,6 @@ import re
 import tempfile
 import unicodedata
 from dataclasses import dataclass, field
-from functools import lru_cache
 from io import BytesIO
 from pathlib import Path
 from typing import BinaryIO
@@ -14,7 +13,7 @@ from typing import BinaryIO
 from pypdf import PdfReader
 
 SUPPORTED_EXTENSIONS = {".md", ".txt", ".pdf"}
-PARSER_VERSION = "docling-v1"
+PARSER_VERSION = "pymupdf4llm-v2"
 
 
 @dataclass
@@ -79,16 +78,24 @@ def read_pdf(file_obj: BinaryIO) -> str:
 
 def _normalize_section_title(line: str) -> str | None:
     line = line.strip()
+
+    def clean_title(title: str) -> str:
+        title = title.strip().strip(":")
+        title = re.sub(r"^(\*\*|__|\*|_)+", "", title)
+        title = re.sub(r"(\*\*|__|\*|_)+$", "", title)
+        return title.strip().strip(":")
+
     markdown_match = re.match(r"^(#{1,6})\s+(.+)$", line)
     if markdown_match:
-        return markdown_match.group(2).strip()
+        return clean_title(markdown_match.group(2))
 
     numbered_match = re.match(r"^(\d+(?:\.\d+)*\.?)\s+([A-Z][^\n]{2,120})$", line)
     if numbered_match and len(line.split()) <= 14 and "@" not in line and "," not in line:
-        return line.rstrip(".")
+        return clean_title(line.rstrip("."))
 
     keywords = {
         "abstract",
+        "concluding remarks",
         "introduction",
         "conclusion",
         "references",
@@ -99,9 +106,10 @@ def _normalize_section_title(line: str) -> str | None:
         "model",
         "discussion",
     }
-    lowered = line.lower().strip(":")
+    cleaned_line = clean_title(line)
+    lowered = cleaned_line.lower().strip(":")
     if lowered in keywords:
-        return line.strip(":")
+        return cleaned_line
     return None
 
 
@@ -147,13 +155,6 @@ def _extract_figure_number(text: str) -> str | None:
 def _figure_caption_from_line(line: str) -> str | None:
     if re.match(r"^\s*(fig(?:ure)?\.?\s+[a-z]?\d+(?:\.\d+)?[\.:)]?)\s+", line, flags=re.IGNORECASE):
         return line.strip()
-    return None
-
-
-def _section_from_docling_heading(line: str) -> str | None:
-    heading = _normalize_section_title(line)
-    if heading:
-        return heading
     return None
 
 
@@ -297,35 +298,24 @@ def _blocks_to_markdown(blocks: list[StructuredBlock]) -> str:
     return "\n".join(lines).strip()
 
 
-def _convert_pdf_with_docling(content: bytes) -> str:
-    if importlib.util.find_spec("docling") is None:
+def _convert_pdf_with_pymupdf4llm(content: bytes) -> str:
+    if importlib.util.find_spec("pymupdf4llm") is None:
         raise RuntimeError(
-            "PDF ingestion on the docling-test branch requires Docling. "
+            "PDF ingestion on the pymupdf4llm-test branch requires PyMuPDF4LLM. "
             "Install it with `pip install -r requirements.txt`."
         )
+
+    import pymupdf4llm
 
     with tempfile.TemporaryDirectory() as temp_dir:
         pdf_path = Path(temp_dir) / "uploaded.pdf"
         pdf_path.write_bytes(content)
-        result = _docling_converter().convert(pdf_path)
-        document = result.document
-        if hasattr(document, "export_to_markdown"):
-            return document.export_to_markdown()
-        if hasattr(document, "export_to_text"):
-            return document.export_to_text()
-        return str(document)
-
-
-@lru_cache(maxsize=1)
-def _docling_converter():
-    from docling.document_converter import DocumentConverter
-
-    return DocumentConverter()
+        return pymupdf4llm.to_markdown(str(pdf_path))
 
 
 def _read_pdf_structured(content: bytes) -> tuple[str, list[StructuredBlock]]:
     try:
-        markdown = _convert_pdf_with_docling(content)
+        markdown = _convert_pdf_with_pymupdf4llm(content)
     except RuntimeError:
         raise
     except Exception:

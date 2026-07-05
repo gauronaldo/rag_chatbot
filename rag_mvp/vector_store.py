@@ -50,6 +50,14 @@ class VectorStore:
             self.collection.delete(ids=ids)
 
     @staticmethod
+    def _normalize_metadata_text(value: object) -> str:
+        text = str(value or "").strip()
+        text = re.sub(r"^(\*\*|__|\*|_)+", "", text)
+        text = re.sub(r"(\*\*|__|\*|_)+$", "", text)
+        text = re.sub(r"\s+", " ", text)
+        return text.strip().lower()
+
+    @staticmethod
     def _query_features(query: str) -> dict:
         lowered = query.lower()
         table_match = re.search(r"\btable\s+([a-z]?\d+(?:\.\d+)?)\b", lowered)
@@ -96,7 +104,7 @@ class VectorStore:
     def _metadata_boost(query_features: dict, metadata: dict) -> float:
         boost = 0.0
         content_type = str(metadata.get("content_type", "")).lower()
-        section = str(metadata.get("section", "")).lower()
+        section = VectorStore._normalize_metadata_text(metadata.get("section", ""))
         table_id = str(metadata.get("table_id", "")).lower()
         figure_id = str(metadata.get("figure_id", "")).lower()
 
@@ -110,7 +118,9 @@ class VectorStore:
             boost += 0.18
         if query_features["section_number"] and section.startswith(query_features["section_number"]):
             boost += 0.12
-        if query_features["section_name"] and section == query_features["section_name"].lower():
+        if query_features["section_name"] and section == VectorStore._normalize_metadata_text(
+            query_features["section_name"],
+        ):
             boost += 0.2
         return boost
 
@@ -126,6 +136,25 @@ class VectorStore:
             return []
 
         result = self.collection.get(where=where, limit=top_k)
+        if query_features["section_name"] and not result.get("ids"):
+            all_items = self.collection.get()
+            expected_section = self._normalize_metadata_text(query_features["section_name"])
+            documents = []
+            metadatas = []
+            ids = []
+            for doc, metadata, chunk_id in zip(
+                all_items.get("documents", []),
+                all_items.get("metadatas", []),
+                all_items.get("ids", []),
+            ):
+                metadata = metadata or {}
+                if self._normalize_metadata_text(metadata.get("section")) == expected_section:
+                    documents.append(doc)
+                    metadatas.append(metadata)
+                    ids.append(chunk_id)
+                if len(ids) >= top_k:
+                    break
+            result = {"documents": documents, "metadatas": metadatas, "ids": ids}
         rows: list[dict] = []
         for doc, metadata, chunk_id in zip(
             result.get("documents", []),
