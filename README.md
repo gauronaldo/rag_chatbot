@@ -12,6 +12,7 @@ the full pipeline from ingestion to retrieval, generation, citation, and evaluat
 - Retrieval embeddings with `BAAI/bge-m3`.
 - Chroma persistent vector store.
 - JSON document registry for incremental indexing and precise chunk deletion.
+- Processed document artifacts for debugging structured parsing.
 - English-only prompting with source citations like `[S1]`.
 - Evaluation layer with RAGAS core metrics plus custom MVP metrics.
 
@@ -21,13 +22,14 @@ The MVP has one local Streamlit entrypoint and a small Python package:
 
 1. Users upload `.md`, `.txt`, or `.pdf` files in Streamlit.
 2. The loader converts documents into structured Markdown internally.
-3. PDF ingestion detects pages, headings/sections, and tables where possible.
-4. The chunker splits by section and keeps tables as table-aware chunks.
-5. `BAAI/bge-m3` embeds chunks and stores them in Chroma with page, section, and content-type metadata.
-6. The JSON registry stores document IDs, version hashes, and chunk IDs.
-7. User questions retrieve candidate chunks from Chroma and apply metadata-aware boosting for table/section queries.
-8. The prompt instructs Ollama/Qwen to answer in English with citations.
-9. The app displays the answer, latency, retrieved contexts, and retrieval scores.
+3. PDF ingestion detects pages, headings/sections, tables, and figure captions where possible.
+4. The structured Markdown and block metadata are saved under `processed_docs/` for debugging.
+5. The chunker splits by section and keeps tables/figure captions as typed chunks.
+6. `BAAI/bge-m3` embeds chunks and stores them in Chroma with page, section, and content-type metadata.
+7. The JSON registry stores document IDs, version hashes, and chunk IDs.
+8. User questions retrieve candidate chunks from Chroma and apply metadata-aware boosting for table/section/figure queries.
+9. The prompt instructs Ollama/Qwen to answer in English with citations.
+10. The app displays the answer, latency, retrieved contexts, and retrieval scores.
 
 ## Setup
 
@@ -82,15 +84,17 @@ compatible.
 1. Upload `.md`, `.txt`, or `.pdf` files in the sidebar.
 2. The loader decodes text, normalizes Unicode to NFC, and converts content into structured Markdown internally.
 3. PDF ingestion preserves page numbers and detects headings/sections. With `pdfplumber`, detected tables are converted
-   to Markdown tables.
-4. The chunker splits text by section and keeps table chunks separate, attaching metadata such as `page`, `section`,
-   `content_type`, and `table_id`.
-5. `BAAI/bge-m3` embeds chunks and stores them in Chroma.
-6. The JSON registry stores document IDs, version hashes, and chunk IDs.
-7. At question time, the app retrieves more candidates than the final `TOP_K`, then boosts table/section candidates
-   when the query mentions table IDs, section IDs, or numeric/table-like terms.
-8. Ollama runs Qwen locally and returns an English-only answer with citations.
-9. The UI displays the answer, latency, retrieved contexts, base similarity, and metadata boost.
+   to Markdown tables. Figure captions are detected from extractable text, but chart pixels are not interpreted.
+4. The app saves `processed_docs/<document_id>_<filename>.structured.md` and
+   `processed_docs/<document_id>_<filename>.blocks.json` for debugging and portfolio inspection.
+5. The chunker splits text by section and keeps table/figure-caption chunks separate, attaching metadata such as
+   `page`, `section`, `content_type`, `table_id`, and `figure_id`.
+6. `BAAI/bge-m3` embeds chunks and stores them in Chroma.
+7. The JSON registry stores document IDs, version hashes, and chunk IDs.
+8. At question time, the app retrieves more candidates than the final `TOP_K`, then boosts table/section/figure
+   candidates when the query mentions table IDs, section IDs, figure IDs, or numeric/table-like terms.
+9. Ollama runs Qwen locally and returns an English-only answer with citations.
+10. The UI displays the answer, latency, retrieved contexts, base similarity, and metadata boost.
 
 ## Evaluation
 
@@ -169,12 +173,42 @@ Context Recall, Context Precision, and Answer Relevancy are core metrics.
 The MVP uses `vector_store/rag_mvp_registry.json` to track indexed documents, version hashes, and Chroma chunk IDs.
 This keeps setup simple and avoids database services for a local portfolio demo.
 
+## Processed Documents
+
+Ingestion writes debug artifacts to `processed_docs/`:
+
+- `<document_id>_<filename>.structured.md`: the structured Markdown representation used for chunking.
+- `<document_id>_<filename>.blocks.json`: block-level metadata such as page, section, content type, table ID, and figure
+  ID.
+
+These files are useful for checking whether a retrieval error starts at PDF parsing, chunking, or ranking. Figure
+support is caption-aware only; this MVP does not yet interpret visual chart content inside figure images.
+
+## Retrieval Debugging
+
+Use the diagnostic CLI when an answer is wrong but the information appears in `processed_docs/`:
+
+```powershell
+python -m rag_mvp.debug_retrieval "what is the Abstract" --document PerezPerez2020 --skip-vector
+```
+
+The output is split by stage:
+
+- Parsed block matches: whether parsing assigned the right section/content metadata.
+- Reconstructed chunk matches: whether chunking preserved the target text and metadata.
+- Structured Markdown keyword hits: whether the converted Markdown contains the target words.
+- Chroma metadata matches: whether indexed chunks can be found by metadata filters.
+- Final vector + metadata retrieval: whether final ranking returns the right contexts.
+
+If parsed blocks or reconstructed chunks are wrong, reset and re-ingest after parser changes. If Chroma metadata matches
+are correct but final retrieval is wrong, tune metadata boosting or add reranking.
+
 ## Project Layout
 
 ```text
 rag_mvp/
   config.py          Runtime config
-  documents.py       Loading, structured Markdown conversion, section/table chunking
+  documents.py       Loading, structured Markdown conversion, section/table/figure-caption chunking
   registry.py        JSON document registry
   vector_store.py    Chroma + BAAI/bge-m3 retrieval with metadata-aware boosting
   ollama_client.py   Local Ollama generation
@@ -182,6 +216,7 @@ rag_mvp/
   evaluation.py      RAG evaluation helpers
 streamlit_app.py     Streamlit MVP UI
 evaluation/          Sample evaluation dataset
+processed_docs/      Structured Markdown and block metadata generated during ingestion
 tests/               Unit tests
 requirements.txt     Python dependencies for venv + pip setup
 ```

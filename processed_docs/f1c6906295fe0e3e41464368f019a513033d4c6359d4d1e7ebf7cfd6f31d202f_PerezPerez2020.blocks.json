@@ -1,0 +1,567 @@
+{
+  "document_id": "f1c6906295fe0e3e41464368f019a513033d4c6359d4d1e7ebf7cfd6f31d202f",
+  "filename": "PerezPerez2020.pdf",
+  "version_hash": "dfa80c7318670183a5db42c3c7d72a1b2f772cfd15052aa45617b67f43d2ef87",
+  "blocks": [
+    {
+      "text": "1\nThe Minimum Wage in Formal and Informal Sectors:\nEvidence from an Inflation Shock\nJorge Pérez Pérez1",
+      "page": 1,
+      "section": "Document",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "I estimate the effect of the minimum wage on formal wages, informal wages, and\nemployment in Colombia. I exploit an unexpected increase in the real minimum wage\nduring 1999. My analysis combines unconditional quantile regressions with a differences-\nin-differences design. I find evidence of wage responses for wages close to the minimum\nwage. The increases are present in both the informal and formal sectors, and are larger in\nthe formal one. Wages around the minimum increase by around 3 percent in the formal\nsector for a 10 percentage points larger minimum wage incidence, and by around 1 percent\nin the informal sector. These increases are smaller than those implied by full compliance\nto minimum wage policy, but positive for some unaffected workers. This suggests\nemployers partially comply with the minimum wage and use it as a reference. I find slight\n1 Banco de México, Prices, Regional Economies and Information Analysis Division. Av. 5 de\nMayo 18, Centro, CDMX, México 06000. Email: jorgepp@banxico.org.mx.\nI thank Kenneth Chay, Darwin Cortes, Nathaniel Hilger and Juan Vargas for providing guidance\nand data for this project. I also thank Andrea Garnero, and Oskar Nordstrom-Skans. This paper\nbenefited from comments and suggestions from Jeffrey Clemens, Arindrajit Dube, Juan Gallego,\nPaula Herrera, David Jaume, Lawrence Katz, Melanie Khamis, Darío Maldonado, Blaise Melly,\nSriniketh Nagavarapu, Carlos Sepulveda, Matthew Turner, and seminar audiences at Banco de\nMexico, Brown University, LACEA and the World Bank. Diego Mayorga and Tatsiana Syman\nprovided great research and formatting assistance. I acknowledge financial support from Fulbright-\nColciencias and Colombia Cientifica – Alianza EFI #60185 contract #FP44842- 220-2018, funded\nby The World Bank through the Scientific Ecosystems, managed by the Colombian Administrative\nDepartment of Science, Technology and Innovation (COLCIENCIAS).",
+      "page": 1,
+      "section": "Abstract",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "2\nnegative employment effects on the informal sector, but not on the formal sector. The\neffects in the informal sector are not driven by cross-sectoral effects. The results suggest\nthe minimum wage has a direct impact on the informal labor market, although they may\nnot apply to minimum wage changes in other countries or contexts, or to larger minimum\nwage increases.\nKeywords Minimum wage, wage distribution, informal labor markets.\nJEL Codes J31, J38, J46\nThe minimum wage is a common policy in developed and developing countries. Most of the\nliterature about the impact of the minimum wage focuses on the effects on formal labor markets\nwith regulatory compliance. A related literature studies the effects of the minimum wage on\ninformal labor markets, where labor regulations are unlikely to be binding.\nThe labor economics literature for developing countries shows that the wage distribution of\ninformal workers has a mode at the minimum wage. For formal markets in developing countries,\nthe literature suggests the minimum wage affects the lower tail of the wage distribution. There\nis less evidence about how the minimum wage impacts the distribution of informal wages,\nbeyond the mode of the wage distribution. It may have a direct impact on the informal market\nby influencing informal labor contracts. It may also have an indirect impact, through interactions\nwith the formal sector. Formal and informal labor markets may be connected, giving rise to\ncross-sectoral effects. For example, formal workers may buy goods and services provided by\ninformal workers.\nIn this paper, I estimate the effect of the minimum wage on the distribution of wages. I do\nthis for formal and informal labor markets in Colombia. Several characteristics of Colombia\nmake it an interesting setting to seek an answer to this question. First, it has high minimum",
+      "page": 2,
+      "section": "Abstract",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "3\nwages relative to similar countries in Latin America. Second, historically it has had a large\ninformal sector. Defining informal workers as those that do not have access to employee health\ninsurance, informal workers accounted for about half of employment in 2000 (Mondragón et al.,\n2010). Third, during the 90s, the minimum wage was indexed to expected inflation. I exploit an\ninflation forecast error in 1999, which produced a large unexpected real minimum wage\nincrease. Colombian authorities increased the national minimum wage by 16 percent by the end\nof 1998. This minimum wage increase was equal to expected inflation in 1999. However,\nbecause of a crisis, actual inflation was below expected, and the real minimum wage had a steep\nincrease.",
+      "page": 3,
+      "section": "Abstract",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "Figure 1 shows the wage density for the formal and informal sectors before and after the",
+      "page": 3,
+      "section": "Abstract",
+      "content_type": "figure_caption",
+      "table_id": "1"
+    },
+    {
+      "text": "minimum wage shock. Visual evidence suggests that both sectors react to the shock. The density\nshifts around the percentiles near the minimum wage. I estimate the effect of this unexpected\nshock on the marginal distributions of formal and informal wages. I also address direct and\ncross-sectoral effects on the informal sector. I do this in three steps. First, I measure the incidence\nof the minimum wage across different city-industry blocks in both sectors, using the fraction of\nworkers affected by the increase. These are workers whose real wage is in between the old and\nthe new minimum wage before it changes.\nSecond, I compare wage distributions between city-industry blocks with different incidence.\nTo estimate the effect on these wage distributions, I use an unconditional quantile regression\nmethod (Firpo et al., 2009a), and exploit the real minimum wage shock using a differences-in-\ndifferences design. Unconditional quantile regressions estimate the impact on the marginal\ndistributions depicted in Figure 1 directly, as opposed to estimating the effects on the conditional\ndistribution of wages through conditional quantile regression, or on mean wages through linear",
+      "page": 3,
+      "section": "Abstract",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "4\nregression. The method involves estimation of a linear regression of a re-centered influence\nfunction (RIF) for the unconditional quantiles on the explanatory variables.\nA major challenge to identify the effects of the minimum wage in this context is the\nconcurrence of the financial crisis and the minimum wage shock. Estimating the minimum wage\neffect by comparing city-industry blocks rests on a key identifying assumption: city-industry\nblocks with different minimum wage incidence should be differentially affected by the\nminimum wage shock, and not differentially affected by the crisis. Time-varying labor market",
+      "page": 4,
+      "section": "Abstract",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "Figure 1: Density of Monthly Wages in the Formal and Informal Sectors",
+      "page": 4,
+      "section": "Abstract",
+      "content_type": "figure_caption",
+      "table_id": "1"
+    },
+    {
+      "text": "Data are from the National Household Survey (ENH). Real wages for 1998, converted to US dollars using a 1 dollar\n= 2000 pesos exchange rate for the entire period. Observations with log wages smaller than 3.5 or larger than 5.5 are\nexcluded. Densities are estimated with a Gaussian kernel and a bandwidth of 0.08. Vertical lines at the level of real\nminimum wages in 1998q4 and 1999q1.\ndifferences between cities and industries may invalidate the design. I address this concern by\ncontrolling for city-specific trends, local labor demand shocks, and local financial sector GDP.",
+      "page": 4,
+      "section": "Abstract",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "5\nIn the third part of the paper, I test for cross-sectoral effects from the formal to the informal\nsector. I do this by looking at the effect of the formal sector minimum wage incidence on\ninformal wages.\nThis paper contributes to the literature estimating the distributional effects of minimum\nwages. In the U.S., these studies have followed different approaches, like decompositions\n(DiNardo et al., 1996), quantile regressions (Lee, 1999; Autor et al., 2016), and panel data\nstudies (Neumark et al., 2004). There are several theoretical explanations for effects on the entire\nwage distribution. Substitution from low skilled to high skilled labor could lead to wage gains\nfor workers earning above the minimum. If the minimum wage is used as a reference value, then\nits increase can lead to a shift in the whole distribution.\nThere are also several papers estimating distributive minimum wage effects in developing\ncountries and in economies with large informal sectors in Latin America. For Brazil, Fajnzylber\n(2001) and Lemos (2009) provide evidence of responses of wage distributions to the minimum\nwage in both sectors. Khamis (2013) finds larger impacts of increases in the minimum wage in\nthe informal sector when compared to the formal one. Engbom and Moser (2018) argue that\nhigher minimum wages led to compression of the wage distribution. For Costa Rica, El-Hamidi\nand Terrell (2002) find that the minimum wage reduced inequality and increased employment\nin the formal sector. Gindling and Terrell (2005) argue that the minimum wage reduced formal\nand informal wage differentials, despite low enforcement. Gindling and Terrell (2007) find small\nnegative employment effects in the formal sector, but not in the informal one. For Ecuador,\nWong (2019) finds that wages and hours worked increased for low-wage workers after a\nminimum wage increase. For Honduras, Ham (2018) finds that, due to a minimum wage\nincrease, formal labor falls and wages rise, while the opposite happens in the informal sector.",
+      "page": 5,
+      "section": "Abstract",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "6\nFor Mexico, Bosch and Manacorda (2010) find reductions in inequality attributed to minimum\nwage increases, and Campos et al. (2017) find some impact of a regional minimum wage\nunification on formal wages. Bouchot (2018) finds evidence of increases along the whole wage\ndistribution after a minimum wage increase. For Uruguay, Borraz and González-Pampillón\n(2017) find formal wage inequality reductions from a large increase in the minimum wage, but\nalso negative employment effects.2\nRelative to these previous studies, this paper makes several contributions. First, it uses a novel\nidentification strategy coming from an unexpected shock in the real minimum wage as a source\nof identifying variation. This contrasts with previous literature that uses expected increases in\nnominal wages. Second, apart from the focus on the response in the formal and informal sectors,\nI explicitly test for cross-sectoral effects from the formal into the informal sector. In a\ncompetitive and segmented labor market model (Harris and Todaro, 1970) a rise in the minimum\nwage would raise covered sector wages above the competitive level for workers in the lower\npart of the covered sector wage distribution. Some of these workers would be dismissed, and\nwould go to the uncovered sector at wages below the new minimum wage. The additional labor\nsupply in the uncovered sector would indirectly decrease wages. Effects in both sectors could\nalso happen because of capital relocation into the informal sector. This would increase the\nmarginal productivity of labor. The wage increase in the covered sector could also raise the\ndemands for goods produced in the uncovered sector (Khamis, 2013).\n2 There are also some studies for other continents. Fan and Alves Pena (2019) do not find evidence of an effect of\nminimum wages on the wages of non-covered agricultural workers in the U.S. Hohberg and Lay (2015) analyze the\neffect of minimum wages in Indonesia, finding limited spillover effects in the informal sector. Dinkelman and\nRanchhod (2012) find wage increases and limited employment effects of a minimum wage for domestic workers in\nSouth Africa.",
+      "page": 6,
+      "section": "Abstract",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "7\nA third contribution to this literature is the focus on unconditional distributions. Most of the\nprevious papers only focus on the conditional distribution of wages. This paper focuses, instead,\non the effects on the unconditional distribution of wages in both the formal and informal sectors.\nThis adds to a relatively novel literature focusing on the effects of the minimum wage on\nunconditional wage distributions (Aeberhardt et al., 2016; Lathapipat and Poggi, 2016; Bouchot,\n2018).\nThis paper also adds to the literature about the effects of the minimum wage in Colombia.\nMaloney and Mendez (2004) argue the minimum wage is binding and induces spikes in the wage\ndistribution. Using time series methods, they find that the minimum wage increases wages along\nthe wage distribution. Unlike this paper, I use cross-sectional variation in minimum wage\nincidence and a shock in its real value.\nUsing dynamic panel data methods, Arango and Pachón (2007) find the minimum wage\nreduces formal sector family incomes in the first decile. They also find positive and significant\neffects for higher deciles, leading to an increase in inequality. They do not address the impact\non the informal sector, nor do they examine wages. Arango and Flórez (2017) argue that the\nminimum wage increases informality in cities where it is high compared to the median. They do\nnot carry out any distributional analysis.\nMondragón et al. (2010) use time and city variation in the median to minimum wage ratio to\nestimate its impact on the probability of being informal. They find that a 10 percent increase in\nthe minimum wage raises the probability of being informal by 1 percent. This suggests the\nexistence of cross-sectoral effects from the formal to the informal sector.\nThe Minimum Wage in Colombia and the 1999 Shock",
+      "page": 7,
+      "section": "Abstract",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "8\nIn this section, I provide key facts about minimum wage legislation in Colombia and explain\nthe 1999 shock. I show that the 1999 financial crisis produced a steep unexpected increase in\nthe real minimum wage. I use this shock to estimate the effects of a higher minimum wage\nincidence on formal wages, informal wages, and unemployment.\nArango et al. (2008b) summarize the evolution of the minimum wage in Colombia and the\nchanges in minimum wage legislation. Current minimum wage regulation in Colombia is linked\nto living expenses and changes in labor productivity. In 1996, a commission to determine the\nminimum wage was established. It is formed by representatives of the government, firms, and\nunions. Every year, the commission negotiates a minimum wage increase for the following year.\nIf the commission is unable to secure an agreement before December 15, the government decides\nthe increase to the minimum wage before the end of the year.\nUp to 1998, the government set the minimum wage according to several parameters: the\ninflation target for the following year, increases in labor productivity, GDP growth and the\nevolution of the consumer price index. From December 1999, the Constitutional Court also\nrequired the minimum wage’s increase to not lie below the previous year’s inflation. Because of\nthis, the minimum wage has increased its real value since 2000. The minimum wage has\nhistorically been large in Colombia by Latin American standards. In 1998, the ratio of the\nminimum wage to the median wage was 0.68 (Maloney and Mendez, 2004).",
+      "page": 8,
+      "section": "Abstract",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "Figure 2 shows the evolution of real minimum monthly wages since 1990. Over this period,",
+      "page": 8,
+      "section": "Abstract",
+      "content_type": "figure_caption",
+      "table_id": "2"
+    },
+    {
+      "text": "the nominal minimum wage ranges from 88 current USD per month in 1990 to 123 USD per\nmonth at the end of 2012. The real value of the minimum wage jumps every January as the\nminimum wage is adjusted. Through the rest of the year, these real increases are dissipated by",
+      "page": 8,
+      "section": "Abstract",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "9\ninflation. The end-of-year real value of the minimum wage remained stable until 1997 when it\nstarted increasing steadily. Note that in 1999 the real minimum wage has a large increase.\nThe causes of the 1999 financial crisis in Colombia have been extensively studied (Parra and\nSalazar, 2000; Villar et al., 2005; Gómez-Gonzalez and Kiefer, 2009). Colombia experienced a\ncredit boom in the 90’s as a consequence of a financial liberalization. A significant expansion\nof the number of financial institutions and loans was accompanied by reductions in loan quality.\nAlso, monetary policy contributed to increases in interest rates. By 1999 a large capital reversion\nand a decrease in the terms of trade occurred. Sudden increases in non-performing loans forced\nthe government to intervene and liquidate many of the institutions. GDP decreased by about 4\npercent in 1999, but the crisis subsided over the course of two years, and by 2001 it was back at",
+      "page": 9,
+      "section": "Abstract",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "Figure 2: Evolution of the Real Minimum Wage in Colombia. Index 1990 = 100",
+      "page": 9,
+      "section": "Abstract",
+      "content_type": "figure_caption",
+      "table_id": "2"
+    },
+    {
+      "text": "Source: Colombia’s Central Bank, Banco de la República. Author’s calculations.",
+      "page": 9,
+      "section": "Abstract",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "10\nits 1998 level. Unemployment spiked up during the crisis: in 1998q4 the unemployment rate for\nthe 7 largest cities was 15.6 percent, and it increased to 18 percent by 1999q4, returning to pre-\ncrisis levels in 2002.\nBy the last quarter of 1998 inflation was expected to be 16 percent for the upcoming year,\nand the minimum wage was increased accordingly. However, inflation in 1999 turned out to be\nonly 9.25 percent due to the financial crisis. The real minimum wage increased by 6.75 percent\nby the end of 1999. For the first quarter of 1999, inflation was about 5 percent, so the real\nminimum wage increased 11 percent between 1998q4 and 1999q1. This increase was set by the\ngovernment without agreement from the minimum wage commission.\nUnlike the previous changes in 1997 and 1998, this one was due to a misalignment between\nexpected and actual inflation during 1999. Moreover, this change is different to posterior\nincreases due to its unexpected nature. After 1999, the minimum wage continued to increase in\nreal terms. These minimum wage hikes were expected, however, because of a 1999 court ruling\nthat required minimum wage increases not to be below the inflation of the previous year, instead\nof fixing them according to expected inflation.3\nDue to the unexpected and external nature of the financial crisis, this shock is arguably more\nexogenous than other minimum wage increases analyzed for developing countries (Fajnzylber,\n2001; Lemos, 2009; Khamis, 2013). The change was nationwide, and the posterior inflation\nmisalignment was unexpected, so the shock was unlikely to be driven by local labor market\nconditions. However, a major challenge to identification of the effects of the minimum wage shock\nis the concurrence of the minimum wage shock and the financial crisis. The crisis also caused\nchanges in unemployment and in the wage distribution, so it is hard to isolate these effects form",
+      "page": 10,
+      "section": "Abstract",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "11\nthe effects of the minimum wage. In the next section, I describe a differences-in-differences\nstrategy to estimate the minimum wage effects.\nEmpirical Strategy\nIn this section, I describe the empirical strategy used to estimate wage effects through the\ndistribution of formal and informal wages and to estimate employment effects. For the wage\neffects, I combine an unconditional quantile regression method and a differences-in-differences\nspecification to estimate a quantile differences-in-differences model. I explain how this\nmethodology relates to other estimation strategies of the distributional effects of the minimum\nwage. I show how I build measures of the minimum wage incidence around the 1999 real\nminimum wage shock. For the employment effects, I use a standard differences-in-differences\nspecification, which I describe at the end of the section.\nEffects on the Wage Distribution\nUnconditional Quantile Regressions\nMy objective is to estimate the effect of the change in the minimum wage on the\nunconditional wage distributions of Figure 1. I follow Firpo et al. (2009a) and estimate the effect\nof a small change in the minimum wage on the distribution’s quantiles. Let 𝐹 (𝑤) and\n𝑊\n𝐹 (𝑤|𝑥) be the unconditional and conditional distributions of wages, respectively. X is a\n𝑊|𝑋\nvector of covariates that includes the minimum wage. Let 𝑄 (𝑊) denote the 𝜏-th quantile of the\n𝜏\ndistribution of wages 𝐹 (𝑤), and 𝑄 (𝑊|𝑋 = 𝑥) be the conditional quantile given 𝑋 = 𝑥. The\n𝑊 𝜏\nconditional quantile effect (CQE) is the effect of an infinitesimal change on covariates on the\nconditional quantile:\n𝜕𝑄𝜏(𝑊|𝑋 = 𝑥)\n𝐶𝑄𝐸(𝜏,𝑥) ≡ . (1)\n𝜕𝑥",
+      "page": 11,
+      "section": "Abstract",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "12\nThe key assumption to identify this effect is stability of the quantile function for small\nchanges of X.4 Conditional quantile effects can be estimated by standard quantile regression.\nHowever, these effects would be uninformative about how changes in X impact the overall wage\ndistributions of Figure 1 instead of the conditional distributions. To calculate the impact on the\noverall distribution, the unconditional quantile effect (UQE) averages these conditional quantile\neffects over the distribution of covariates, matching each conditional quantile to a quantile on\nthe unconditional distribution. If 𝑞 is the 𝜏-th quantile of the unconditional distribution of\n𝜏\nwages, the UQE is given by:\n𝑈𝑄𝐸(𝜏) ≡ 𝐸[𝜔 (𝑋)𝐶𝑄𝐸(𝑠(𝑋),𝑋)] (2)\n𝜏\n𝑓 (𝑞 |𝑥)\n𝑊|𝑋 𝜏\n𝜔 (𝑋) ≡\n𝜏 𝑓 (𝑞 )\n𝑊 𝜏\n𝑠(𝑥) ≡ {𝑠 ∶ 𝑄 (𝑊|𝑋 = 𝑥) = 𝑞 } ,\n𝑠 𝜏\nwhere 𝑓 and 𝑓 are the conditional and unconditional density functions of wages. For\n𝑊|𝑋 𝑊\nestimation purposes, Firpo et al. (2009a) show that the UQE can be rewritten as the average\nmarginal effect from a binary response model on the probability of wages exceeding a particular\nconditional quantile value. I assume a linear form for this probability model, such that 𝑃𝑟[𝑌 >\n𝑞 |𝑋 = 𝑥] can be approximated by a linear function.5 Under this assumption, Firpo et al.\n𝜏\n4 This assumption is linked to stability of the conditional distribution function 𝐹 for small minimum wage\n𝑊|𝑋\nchanges (Fortin et al., 2011). This is a frequent assumption in papers that study the effects of minimum wage\nchanges on inequality in the U.S. (DiNardo et al., 1996; Lee, 1999; Autor et al., 2016). It may not hold in the\npresence of general equilibrium effects, where the function 𝐹 may change when covariates X change. For\n𝑊|𝑋\nexample, it may not be valid to consider the effects of eliminating the minimum wage. It may also fail to hold in\nsettings where there is selection in unobservables, such that X includes unobservables that change when the\nminimum wage changes.\n5 Firpo et al. (2009a) also use this assumption when comparing conditional and unconditional quantile effects\nin their empirical application. They find that this estimator performs well and provides estimates close to fully\nnonparametric estimates. This assumption differs from those used in other application of quantile difference-in-\ndifferences models. Meyer et al. (1995), assume a linear specification for the conditional quantile function 𝑄 (𝑊).\n𝜏\nOther papers that estimate the effect of minimum wages on inequality, like Lee (1999), Bosch and Manacorda",
+      "page": 12,
+      "section": "Abstract",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "13\n(2009a) show that this amounts to estimating a linear regression with the recentered influence\nfunction (RIF) as the dependent variable:\n𝑅̂𝐼𝐹(𝑊,𝑞̂) = 1(𝑊>𝑞̂ 𝜏) +𝑞̂ − 1−𝜏 , (3)\n𝜏 𝑓̂ 𝑊(𝑞𝜏) 𝜏 𝑓̂ 𝑊(𝑞𝜏)\nwhere 𝑞̂ and 𝑓̂(𝑞 ) are estimates of the quantile and the density at the quantile, respectively,\n𝜏 𝑊 𝜏\nand 1() is the indicator function.6,7 In the following section, I explain how I combine this\nstrategy with a differences-indifferences methodology to estimate the marginal effect of a\nminimum wage increase on these quantiles.\nA Differences-in-Differences Strategy\nTo estimate the effect of the minimum wage, I compare wage distributions across city-\nindustry blocks that have a different incidence of the minimum wage.8 Let 𝑤 be the wage of\n𝑖𝑐𝑗𝑡\nindividual i in city c and industry j at time t. My baseline specification is a differences-in-\ndifferences regression with the city-industry blocks as treatment units, and the incidence of the\nminimum wage as a continuous treatment regressor:\n𝑅̂𝐼𝐹(𝑤 ,𝑞̂) = 𝜙 +𝜙 +𝜃𝑀𝑊 1(𝑡 > 1998𝑞4)+𝛿𝑋 +𝜀 . (4)\n𝑖𝑐𝑗𝑡 𝜏 𝑐𝑗 𝑡 𝑐𝑗 𝑐𝑗𝑡 𝑖𝑐𝑗𝑡\nIn this regression, 𝜙 is a city-industry effect and 𝜙 is a time effect, 𝑀𝑊 is a measure of\n𝑐𝑗 𝑡 𝑐𝑗\nthe minimum wage shock incidence, 1(t > 1998q4) is a dummy variable equal to 1 after the\n(2010) and Autor et al. (2016), also start from a linear model for conditional quantiles and assume they evolve in\nparallel across cities or industries.\n6 I use traditional linear interpolation of closest ranks estimates for 𝑞̂. For estimates of f (q), I estimate the\n𝜏 W τ\ndensity f non-parametrically with a gaussian kernel and a Silverman rule bandwidth. Then I plug in the estimates\nW\nof 𝑞̂ in the estimated density.\n𝜏\n7 Firpo et al. (2009a) note that because the density f (q) needs to be estimated non-parametrically, this estimator\nW τ\ndoes not converge at the parametric rate. Therefore, a large number of observations is needed to estimate f (q).\nW τ\nThis may hold for quantiles around the minimum wage, but may not hold for the tails of the distribution.\nAdditionally, there is some approximation error when assuming that the RIF is linear, which requires a large sample\nto be negligible. Details are in Firpo et al. (2009b).\n8 The choice of city-industry level aggregation is consistent with search theories of labor demand (Beaudry et al.\n2018).",
+      "page": 13,
+      "section": "Abstract",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "14\nminimum wage shock, 𝑋 are covariates and 𝜀 is an error term. Although the minimum\n𝑐𝑗𝑡 𝑖𝑐𝑗𝑡\nwage incidence 𝑀𝑊 is measured at the city-industry level, the RIF in equation (3) is calculated\n𝑐𝑗\nwith reference to the unconditional wage density function. The coefficient θ measures the effect\nof increasing the minimum wage incidence on this unconditional wage distribution.9\nIn absence of cross-sectional variation in the nominal minimum wage, I measure the\nminimum wage incidence using four different variables. The first variable is the “fraction\naffected” by the minimum wage increase, the proportion of workers earning between the old and\nthe new real minimum wage. If this percentage is larger for a particular city-industry pair, this\nmarket should be more affected by the minimum wage increase. This variable has been used\nextensively in the minimum wage literature (Card, 1992; Stewart, 2002; Lemos, 2009; Khamis,\n2013). I calculate this incidence for 1998q4, the quarter before the minimum wage changes:\n𝐹𝑟𝑎𝑐𝑡𝑖𝑜𝑛 𝐴𝑓𝑓𝑒𝑐𝑡𝑒𝑑 =\n#(𝑚𝑤98𝑞4≤𝑤\n𝑖𝑐𝑗,98𝑞4\n≤𝑚𝑤99𝑞1)\n. (5)\n𝑐𝑗,98𝑞4\n𝑁\n𝑐𝑗,98𝑞4\nI calculate this incidence for both formal and informal sectors. The second incidence variable\nis a “fraction at” measure, defined as:\n𝐹𝑟𝑎𝑐𝑡𝑖𝑜𝑛 𝐴𝑡 =\n#(0.9×𝑚𝑤98𝑞4≤𝑤\n𝑖𝑐𝑗,98𝑞4\n≤1.1×𝑚𝑤99𝑞1)\n. (6)\n𝑐𝑗,98𝑞4\n𝑁\n𝑐𝑗,98𝑞4\nThis fraction counts the number of people who earn a wage within 10 percent of the minimum\nwage. The advantage of this measure, compared to “fraction affected” is that it may account for\nworkers who are not classified as affected due to small measurement errors in wages. The\nweakness of this measure is that it involves a choice of the percent deviation from the minimum\nwage. Both fraction measures are calculated using real wages. This is in contrast with Lemos\n9 Since the RIF is measured for the unconditional distribution of wages, the full sample is used when estimating\nthe density functions in equation (3). This mitigates small-sample concerns that may arise because the treatment is\ncalculated at the city-industry level.",
+      "page": 14,
+      "section": "Abstract",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "15\n(2009), who calculates incidence measures based on nominal wages. The minimum wage shock\nI consider stems from both an expected increase in the nominal minimum wage as well as an\nunexpected increase in the real minimum wage. Because of this, I choose to use a real measure.\nThe third incidence measure is the minimum wage violation index (Bhorat et al., 2015; Bhorat\net al., 2017):\n𝑉𝑖𝑜𝑙𝑎𝑡𝑖𝑜𝑛 = ∫𝑣(𝑚𝑤 ,𝑤 )𝑓 (𝑤 )𝑑𝑤,\n𝑐𝑗,98𝑞4 99𝑞1 𝑖𝑐𝑗,98𝑞4 𝑊 𝑖𝑐𝑗,98𝑞4\n𝑚𝑤99𝑞1−𝑤\n𝑖𝑐𝑗,98𝑞4 𝑤 ≤ 𝑚𝑤 ;\n𝑣 ≡ { 𝑚𝑤99𝑞1 𝑖𝑐𝑗,98𝑞4 99𝑞1 (7)\n0 𝑖𝑛 𝑜𝑡ℎ𝑒𝑟 𝑐𝑎𝑠𝑒.\nThis measure calculates the distance of wages to the new minimum wage. Compared to\n“fraction affected”, this measure accounts for the fact that if wages were below the minimum\nwage, but close to it, the incidence of the minimum wage is lower.\nThe fourth incidence measure is the minimum to median wage ratio at the city-industry level.\nThis variable measures how large the minimum wage is compared to the wages in the market.\nWhile easier to interpret, this measure assumes that the minimum wage is more binding in low\nwage markets. This is not necessarily the case for low-wage informal markets where labor\nregulations may not apply.\nI assume that the conditional probability of wages exceeding a given value can be\napproximated by a linear function. A second assumption, which is key for identification of the\nminimum wage effects, is that this conditional probability evolves in parallel across city-industry\nblocks.\nBecause the minimum wage shock occurs at the same time as the onset of the financial crisis,\nthis is a strong assumption. There may be city-specific labor market shocks due to the crisis,\nwhich may affect only certain areas of the country. However, the crisis was induced by an\nexternal shock and a capital flow reversal. In other words, the crisis did not originate from",
+      "page": 15,
+      "section": "Abstract",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "16\nadverse shocks within the country, which may have been more severe in particular cities or\nindustries. However, the external shock may have affected cities or industries differentially.\nSome of the changes in the distribution may be due to this shock and not to the difference in\nminimum wage incidence. This would happen if the 1999 crisis caused different effects across\nindustries.\nWhile the unconditional probability of wages exceeding a value would certainly evolve\ndifferently across city-industries in presence of these crisis effects, the conditional probability\nmay evolve in parallel. This would occur after controlling appropriately for the differential\neffects of the crisis across city-industry blocks. To address the existence of labor demand shocks\nthat affect cities differently I control for city-level employment and Bartik shocks as covariates\nX in equation (4). Bartik shocks are intended to capture labor demand shocks that are external\nto each city. I also include a 1-year lag of financial sector GDP for each city’s state, to address\ndifferential impacts of the financial crisis across cities. To capture city-specific trends in the\ndistributions, I allow for a linear city-specific trend in some specifications. To address the\ndifferential impact of the crisis across industries, I also control for the national evolution of\nemployment in each industry.\nTo conduct inference, I use the wild-bootstrap-t method of Cameron et al. (2008) and cluster\nby city, therefore allowing for correlation of the error terms in equations (4) across industries\nwithin each city. The bootstrap method is intended to reduce over rejection, which is frequent in\ndifferences-in-differences studies (Bertrand et al., 2004), and to address the limited number of",
+      "page": 16,
+      "section": "Abstract",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "17\nclusters. I report parametric standard errors clustered by city, and p-values and confidence\nintervals obtained through the bootstrap procedure.10\nEffects on Employment\nI estimate effects on employment in both sectors using a differences-in-differences\nspecification on data aggregated at the city-industry level. I estimate the analog of equation (4)\nfor employment:\n𝑁 = 𝜙 +𝜙 +𝜃𝑀𝑊 1(𝑡 > 1998𝑞4)+𝛿𝑋 +𝜀 . (7)\n𝑐𝑗𝑡 𝑐𝑗 𝑡 𝑐𝑗 𝑐𝑗𝑡 𝑐𝑗𝑡\nHere, 𝑁 is employment at the city-industry level. As an alternative employment variable,\n𝑐𝑗𝑡\nI use hours worked during the last week at the individual level. As in the previous section, I also\ntry different specifications to account for labor demand shocks and city trends.11\nData Sources and Descriptive Statistics\nThe data comes from Colombia’s National Household Survey (ENH) for 1996q2 to 2000q2.\nThe ENH was a quarterly cross-sectional survey used to calculate labor market indicators at the\nnational and city levels. It is representative of the principal metropolitan areas of the country.\nThe survey collects data on wages, employment, demographic and labor market variables. I\nrestrict the estimation sample to occupied workers in the government and private sector and\nexclude the self-employed. I only analyze data for the 7 cities that are present in all quarters of\nthe survey and that have a large sample size per city per quarter.12 I classify formal and informal\n10 Note that since the p-values are obtained through the bootstrap, standard errors and p-values may point in\ndifferent directions.\n11 I do not control for city or industry level employment in these regressions since they are endogenous to the\ncity-industry block employment rate.\n12 These cities are Barranquilla, Bogotá, Bucaramanga, Cali, Manizales, Medellín and Pasto.",
+      "page": 17,
+      "section": "Abstract",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "18\nworkers into 6 economic activities.13 The sample has 149 city-industry blocks, followed for 17\nquarters. I further restrict the estimation sample to workers who work between 30 and 50 hours\nper week and are under 65 years old. The pooled survey sample is representative of 11.67 million\nworking-age population individuals, of which about 6.04 million are occupied (51.76 percent).\nThe estimation sample accounts is representative of 2.38 million workers, or 39.48 percent of\noccupied workers.14\nI classify workers who do not receive health insurance provided by their employer as\ninformal. There are other measures of informality available, but all of them capture the same\ndynamics. The health measure is available for most of the sample, as opposed to others.\nMondragón et al. (2010) provide details about how this measure compares to the alternative\nones.15\nTable 1 shows sample percentages by minimum wage incidence and formality. The informal\nsector is large: about 22 percent of workers in the pooled sample are informal according to the\nhealth insurance based measure. Although compliance with the minimum wage is imperfect in\nboth sectors, there is substantial mass around the minimum wage in the wage distributions.\nAbout 9 percent of workers earn around the minimum wage in either sector. While most formal\n13 I use a 1-digit ISIC Rev. 2 classification. Although the survey has information at the 2 digit level, sample\nsizes within the 2 digit categories are small. From the 9 1-digit categories I exclude Agriculture, Mining and Utilities\ndue to small sample sizes. Overall these excluded industries comprise no more than 2 percent of the pooled sample.",
+      "page": 18,
+      "section": "Abstract",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "15 Although Colombia’s Department of Statistics (DANE) had some informality-related questions in the survey,\nthese were only available once a year for this sample period. This has led researchers to use employer-provided health\ninsurance as an alternative measure of informality. Mondragón et al. (2010) show that this measure of informality and\nalternative measures, such as whether the employer contributes to the employee pension or whether the firm is large,\nmostly concur and exhibit the same dynamics. In section A.2. of Appendix A, I provide more detail about this choice\nof an informality measure.",
+      "page": 18,
+      "section": "14 Appendix A includes a detailed breakdown of the sample restrictions",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "19\nworkers earn above the minimum wage, most informal workers earn below it.16 Nevertheless,\nmore than 40 percent of informal workers earn above the minimum wage.\nTable 1: Sample Percentages by Informality Relative to the Minimum Wage\nRelative to Minimum Wage\nRelative\nBelow At Above Total\nInformality Size\n% % % % %\nFormal 77.89 18.0 9.2 72.7 100.0\nInformal 22.10 47.9 9.3 42.9 100.0\nTotal 100.0 24.6 9.2 66.1 100.0\nSample size 36,116 15,746 87,126 138,988\nPooled data 1996q2-2000q2. All calculations based on real wages for 1998. “At minimum wage” includes workers\nwhose real wage is within 3 percentage points of the real minimum wage in their city.\nIn Table 2, I describe the distribution of real wages across sectors. I calculate real wages\nusing city-specific consumer price indices. The minimum wage is about 74.5 USD of 1998\nthroughout the sample. It falls at around the 25th percentile of the distribution of formal wages,\nand slightly above the median of the distribution of informal wages.\nTable 2: Distribution of Real Wages, by Sample Characteristics. Dollars of 1998\nInformality Mean P10 P25 P50 P75 P90\nFormal 185.0 68.2 76.5 114.6 197.6 362.3\nInformal 99.9 39.7 63.5 73.1 97.5 153.7\nTotal 166.2 64.9 72.4 97.8 175.0 324.8\nSample size 138,988\nPooled data 1996q2-2000q2. Columns show the mean and selected percentiles of the distribution of wages. All\ncalculations based on real wages for 1998, converted to US dollars using a 1 dollar = 2000 pesos exchange rate for\nthe entire period.\nIn Figure 3, I show there is substantial heterogeneity in the incidence of the minimum wage\nacross locations and industries before the shock. In the formal sector, the fractions of workers\n16 Note that formal workers may still earn below the minimum wage under the definition of formality used, based\non employer-provided access to health insurance.",
+      "page": 19,
+      "section": "14 Appendix A includes a detailed breakdown of the sample restrictions",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "20\naffected by the minimum wage shock are larger in the smallest city in the sample (Pasto). The\ndifference can be as large as 15 percentage points for some sectors. In the informal sector, the\ndifferences across cities are less evident. Manufacturing and construction are the sectors with\nthe largest incidence across cities and sectors. There are minimum wage workers present in all\nindustries, as opposed to the U.S., where they are predominantly in the restaurant industry (Dube\net al., 2010).",
+      "page": 20,
+      "section": "14 Appendix A includes a detailed breakdown of the sample restrictions",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "Effects on Wages\nFormal Sector",
+      "page": 20,
+      "section": "Results",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "Figure 4 shows the estimated unconditional quantile effects for the formal wage distribution.",
+      "page": 20,
+      "section": "Results",
+      "content_type": "figure_caption",
+      "table_id": "4"
+    },
+    {
+      "text": "I find evidence of increases in wages in the lower tail, implying compression of the distribution.\nEffects are found up to the 30th percentile of the distribution, around the level of the minimum\nwage. The coefficient peaks around the 25th percentile. For higher percentiles, the effects are",
+      "page": 20,
+      "section": "Results",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "21",
+      "page": 21,
+      "section": "Results",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "Figure 3: Variation in Minimum Wage Incidence in 1998q4, Selected Cities",
+      "page": 21,
+      "section": "Results",
+      "content_type": "figure_caption",
+      "table_id": "3"
+    },
+    {
+      "text": "Minimum wage incidence across city-industry blocks for the largest and smallest cities in the sample. Incidence is\nmeasured by “fraction affected”, the fraction of workers between the old and new minimum wage, defined in equation\n(5).\nnot significant. Since the minimum wage incidence measures are built by counting workers near\nthe minimum wage, it is expected that the effects on higher percentiles of the wage distribution\nare less robust.\nTable 3 shows these results for selected percentiles of the distribution. These are the increases\nin log wages at each percentile when incidence is 1 percentage point larger. The real minimum\nwage increased by 9.75 percent in the shock. Wages at the 5th percentile would have gone up\nby about 2 percent if incidence had been 10 percentage points higher. These effects grow larger\nup to the 25th percentile of the distribution, where wages would increase about 4 percent with a\n10 percentage points higher incidence. The increase in incidence from the market with the least\nminimum wage incidence (social services in Bogotá) to the market with the most incidence",
+      "page": 21,
+      "section": "Results",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "22",
+      "page": 22,
+      "section": "Results",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "Figure 4: Effects of the Minimum wage Increase on the Distribution of Formal Wages",
+      "page": 22,
+      "section": "Results",
+      "content_type": "figure_caption",
+      "table_id": "4"
+    },
+    {
+      "text": "Estimates of unconditional quantile effects for percentiles of the distribution of formal wages. Minimum wage\nincidence is measured by “fraction affected”, the fraction of workers between the old and new minimum wage in each\ncity-industry block. Controls include city-level employment and Bartik price shocks. Shaded areas are\n95% confidence intervals obtained using a wild bootstrap-t procedure with 200 replications clustered by city.\nFull estimation results for selected quantiles and alternate specifications are on Table 3.\n(construction in Manizales) is of about 32 percentage points. My estimates imply that if all cities\nhad this highest incidence, wages would grow around 12 percent for the quantiles close and\nbelow the minimum wage. It is encouraging that the sign of these effects is robust to controlling\nfor trends, Bartik shocks and lagged financial GDP, which address the heterogeneity of crisis-\nrelated shocks across city-industries. Nevertheless, the magnitude of the point estimates\ndecreases as additional city-level controls are included. This suggests that these heterogeneous\ncity-level shocks have some bearing in the relationship between the minimum wage and the\nwage distribution. In Table B.2 of Appendix B, I report estimates by city. For these, errors are\nclustered at the industry level. The effects are noisy given the limited sample sizes by city and",
+      "page": 22,
+      "section": "Results",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "23\nTable 3: Effect of the Minimum Wage Incidence on the Formal Wage Distribution, Selected\nPercentiles\n(1) (2) (3) (4) (5)\np5 0.0016** 0.0018** 0.0003 0.0004 0.0009\n(0.0007) (0.0008) (0.0007) (0.0006) (0.0005)\n[0.050] [0.050] [0.776] [0.408] [0.119]\np10 0.0029** 0.0024* 0.0019** 0.0014 0.0022**\n(0.0006) (0.0011) (0.0003) (0.0011) (0.0007)\n[0.010] [0.075] [0.030] [0.229] [0.030]\np15 0.0026*** 0.0017* 0.0016* 0.0007 0.0013*\n(0.0005) (0.0008) (0.0007) (0.0008) (0.0005)\n[0.000] [0.080] [0.055] [0.438] [0.080]\np20 0.0033** 0.0024** 0.0026 0.0016*** 0.0023***\n(0.0009) (0.0004) (0.0013) (0.0003) (0.0003)\n[0.015] [0.015] [0.109] [0.000] [0.000]\np25 0.0034** 0.0024** 0.003 0.0019*** 0.0024***\n(0.0012) (0.0005) (0.0016) (0.0005) (0.0006)\n[0.030] [0.030] [0.184] [0.000] [0.000]\np30 0.0013 0.0004 0.0012 0.0004 0.0007\n(0.001) (0.0006) (0.0013) (0.0007) (0.0005)\n[0.567] [0.627] [0.756] [0.557] [0.219]\np50 (0.0003) -0.0009 0.0005 0.0002 0.0003\n(0.0023) (0.0019) (0.0022) (0.0018) (0.0019)\n[0.841] [0.677] [0.910] [0.905] [0.905]\nObservations 106468 106468 106468 106468 106468\nCity x Industry FE Yes Yes Yes Yes Yes\nTime FE Yes Yes Yes Yes Yes\nBartik Price Shocks Yes Yes Yes Yes Yes\nCity Specific Trends Yes Yes Yes\nIndustry Employment Yes Yes Yes\nLagged Financial GDP Yes\nEach row of the table corresponds to the estimates of unconditional quantile effects for a quantile of the distribution\nof formal wages. Minimum wage incidence is measured by “fraction affected”, the fraction of workers between the\nold and new minimum wage in each city-industry block. Columns correspond to alternative specifications. Standard\nerrors clustered by city in parentheses. P-values in brackets. P-values are obtained with a wild bootstrap-t procedure\nwith 200 replications. * p < 0.1; ** p < 0.05; *** p < 0.01.",
+      "page": 23,
+      "section": "Results",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "24\nthe fact that there are only 7 industries. Nevertheless, the estimated impacts are larger for cities\nwith a larger “fraction affected”.\nThe average incidence of the minimum wage increase, measured by “fraction affected”, is\n8.5 percent in the estimation sample. This implies an increase in real wages of 2.9 percent at the\n25th percentile. The real minimum wage increased 6.75 percent between 1998q4 and 1999q4.\nTherefore, the implied elasticity of real wages in the formal sector to the real minimum wage at\nthis percentile is about 0.43.\nTo better assess the magnitude of these effects, I conduct two counterfactual exercises.\nInitially, I assume that after the minimum wage shock, all the affected workers between the old\nand the new minimum wage are paid the new minimum. I calculate the implied conditional\nquantile effect of equation (1) for each city and industry. Next, I obtain the implied unconditional\nquantile effect averaging over the distribution of workers across city-industry blocks. I scale\nthese effects by the incidence in each block to obtain an implied coefficient. The results are\nshown in Figure 5.\nThe estimated effects are smaller than the implied effects from a mechanical increase in\nwages for those affected. The counterfactual effects are about twice as large. This suggests\nwages do not increase for all of the affected workers. However, in the lower tail of the\ndistribution the estimated effects are positive. In a framework where only affected workers earn\nthe new minimum wage, these effects should be zero. Positive effects may be due to usage of\nthe minimum wage as reference for wages below it. To see the degree of referencing for these\nbelow-minimum wages, I also calculate counterfactual effects if all workers below the minimum\nwage are brought to the new minimum. Although the estimated effects are positive for these",
+      "page": 24,
+      "section": "Results",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "Figure 5: Comparison of Estimated Effects and Counterfactual Effects, Formal Sector",
+      "page": 24,
+      "section": "Results",
+      "content_type": "figure_caption",
+      "table_id": "5"
+    },
+    {
+      "text": "25\nComparison of unconditional quantile effects (UQE) for percentiles of the distribution of formal wages, with effects\nfor counterfactual scenarios where wages are increased according to the minimum wage. “Estimated effect”\ncorresponds to the UQE estimate of the effect of the minimum wage. “Increase for affected’ shows implied UQEs in\na scenario where for workers between the old and the new minimum wage, the wage is increased to the new minimum\nwage. “Increase for all below” shows implies UQEs in a scenario where all workers below the new minimum wage\nare brought up to the new minimum wage.\npercentiles, they are significantly smaller than the implied effect of increasing the wage to the\nminimum for workers whose wage is smaller.\nThere are some caveats to these counterfactual exercises. First, the conditional quantile\neffects calculated neglect the effect of other covariates. Higher incidence cities may also be\nexperiencing worse labor market conditions which allow smaller wage responses. If this were\nthe case, merely comparing the estimates to the counterfactual coefficients underestimates the\nactual incidence of the minimum wage. Second, they assume the absence of an employment\nresponse. For example, if all workers below the minimum wage were dismissed as a response to\nthe shock, then the counterfactual estimates would be higher.",
+      "page": 25,
+      "section": "Results",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "26\nTable 3 also shows estimates under alternative specifications that include city trends, industry\nemployment and lagged financial sector GDP. The effects are stable in the percentiles near the\nminimum wage and somewhat smaller in the lower tails for some specifications. I also estimate\nthe effects using the three other measures of incidence: the fraction at the minimum wage, the\nminimum to median wage ratio, and the violation index. Figure B.1 in Appendix B shows that\nthe same pattern of effects emerges using different measures and different intervals around the\nminimum wage to measure “fraction at”.\nTo check that my estimates are not simply capturing unobservables that vary with minimum\nwage incidence, I provide two pieces of evidence in appendix B. I reestimate the effects on the\nquarter previous to the minimum wage shock from 1998q3 to 1998q4, using incidence for\n1998q4 as the independent variable, and excluding all observations after 1998q4. Figure B.2\nshows an absence of significant effects or patterns in the quantile effects.\nI also illustrate the evolution of the formal density of wages across quarters in Figure B.3 as\na nonparametric way of seeing if the distribution changes from quarter to quarter. Changes only\nappear at the end of every year, where minimum wage shocks occur, and only around the\npercentiles around the minimum. These facts suggest the effects I estimated are not due to\nunobservable differences across city-industries or time trends in the distribution of formal\nwages.\nSince there are also minimum wage changes at the end of 1996 and 1997, which seem to be\nreflected in changes in the distributions in Figure B.3, I estimate the wage effects of these\nminimum wage increases. The results are shown in Figure B.4. A comparison of these effects\nwith the main estimated effects for 1999q1 is illustrative of the different effects of expected and\nunexpected minimum wage shocks. This is because the misalignment between expected and",
+      "page": 26,
+      "section": "Results",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "27\nobserved inflation in these years was smaller, as shown in Figure 2, where the largest increase\nis in 1999q1. The estimated effects are noisier. For the increase in 1997, there are not statistically\nsignificant effects in either sector, although the formal sector coefficients are large. For the\nincrease in 1998, there is some slight evidence of effects around the percentiles around the\nminimum wage, but these are much smaller than the effects in 1999.\nAltogether, my results imply a positive and significant impact of the minimum wage shock\non the distribution of formal wages at quantiles below and around the minimum wage. A 10\npercentage points higher minimum wage incidence across cities and industries would imply\nwage increases. These are of about 1.5 percent in the lower tail and of about 3 percent in the\npercentiles close to the level of the minimum wage. The results become smaller once I add\ncontrols for city-specific shocks but remain significant. I turn to the effect on the distribution of\ninformal wages in the following section.\nInformal Sector\nI follow the same strategy used in the previous section to estimate effects in the informal wage\ndistribution. Figure 6 shows the estimated effects. Panel (a) uses “fraction affected” as the\nincidence variable. The extent of the effects is limited compared to the effects in the formal\nsector. There is, however, some evidence of an increase in median wages. A 10 percentage points\nlarger incidence of the minimum wage across cities and industries would imply 1 percent higher\nwages around the 60th percentile according to the last specification. Wages in the lower tail of\nthe distribution do not seem to react to the minimum wage. This is consistent with the large non-\ncompliance to the minimum wage in the informal sector (Garnero, 2018).\nPanel (b) shows estimates with “fraction at”. These are slightly larger and less noisy than\nthose using “fraction affected”, and are statistically significant from the 55th to the 70th",
+      "page": 27,
+      "section": "Results",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "28",
+      "page": 28,
+      "section": "Results",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "Figure 6: Effects of the Minimum Wage Increase on the Distribution of Informal Wages",
+      "page": 28,
+      "section": "Results",
+      "content_type": "figure_caption",
+      "table_id": "6"
+    },
+    {
+      "text": "(a) Fraction Affected\n(b) Fraction At\nEstimates of unconditional quantile effects for percentiles of the distribution of informal wages. In panel A, the\nminimum wage incidence is measured by “fraction affected”, the fraction of workers between the old and new\nminimum wage in each city-industry block. In panel B, the minimum wage incidence is measured by “fraction at”,\nthe number of workers that earn between 0.9 and 1.1 times the new minimum wage in each city-industry block.\nControls include city-level employment and Bartik price shocks. Shaded areas are 95% confidence intervals obtained\nusing a wild bootstrap-t procedure with 200 replications, clustered by city. Full estimation results for selected quantiles\nand alternate specifications are on Table 4 of Appendix B.\npercentile, being larger around the 55th. Table 4 shows the full results for selected percentiles.\nIn Appendix B Figure B.5 I overlay the estimates with the four incidence measures. Estimates\nusing both the ratio of minimum to median wages and the violation index yield negative and\ninsignificant estimates for the middle of the distribution, but are also large at high percentiles",
+      "page": 28,
+      "section": "Results",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "29\nwhich may happen because of bias due to measurement error (Chetverikov et al., 2006).\nChanging the interval around the minimum wage to measure “fraction at” changes the\ncoefficients at low and high percentiles, but not for the percentiles around the minimum wage.\nThe average incidence of the minimum wage in the informal sector, measured by “fraction\nat” in the estimation sample is 10.4 percent. This implies an increase of real wages at the 60th\npercentile –closest to the minimum wage– of about 1.25 percent. Since the real minimum wage\nincreased by 6.75 percent from 1998q4 to 1999q4, the implied elasticity of real wages to the real\nminimum wage is 0.18 in the informal sector.\nThe estimates for the informal sector are statistically different from the formal sector ones.\nIn Appendix B Table B.3 I show that the estimates are different for all percentiles, and for the\npercentiles around the level of the minimum wage in the formal sector. Since the informal sector\nestimates are noisier, they are not different from the formal sector ones from percentiles 40 to\n70. I also show in Table B.2 that the informal sector estimates are larger for cities with a larger\n“fraction at”, although this relationship is weaker than for the formal sector results.\nI reestimate the effects using “fraction at” (which yields the largest estimates) as the incidence\nmeasure, for 1998q3-1998q4, before the minimum wage change. These results are plotted in\nFigure B.6 of Appendix B. The estimates are very noisy, but, as with the formal sector,\ninsignificant for percentiles around the minimum wage. It suggests that current estimates only\ncapture the incidence of the 1999 minimum wage shock. I do not find evidence of wage\ndecreases in the informal sector, which would be suggested by a competitive model.\nTo summarize, I find that higher minimum wage incidence leads to wage increases in\nthe informal sector around median wages, around the minimum wage. These effects are smaller\nand less robust than those for the formal sector. It is unclear if the effects we observe are due to",
+      "page": 29,
+      "section": "Results",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "30\nTable 4: Effect of the Minimum Wage Incidence on the Informal Wage Distribution\n(1) (2) (3) (4) (5)\np40 0.0016 0.0008* 0.0016 0.0008 0.0011\n(0.0008) (0.0005) (0.0008) (0.0005) (0.0007)\n[0.129] [0.075] [0.184] [0.159] [0.234]\np45 0.0019** 0.001 0.0019** 0.001 0.0013**\n(0.0006) (0.0005) (0.0006) (0.0005) (0.0005)\n[0.020] [0.129] [0.020] [0.134] [0.050]\np50 0.0016 0.0007 0.0016 0.0006 0.0009\n(0.0008) (0.0005) (0.0008) (0.0005) (0.0004)\n[0.169] [0.318] [0.239] [0.284] [0.104]\np55 0.0015 0.001 0.0015 0.001 0.0012**\n(0.0007) (0.0006) (0.0007) (0.0006) (0.0006)\n[0.139] [0.124] [0.149] [0.104] [0.040]\np60 0.0012* 0.0010** 0.0012* 0.0010* 0.0011**\n(0.0006) (0.0005) (0.0006) (0.0005) (0.0004)\n[0.060] [0.040] [0.100] [0.070] [0.045]\np65 0.0014*** 0.0011* 0.0014** 0.0011** 0.0011**\n(0.0004) (0.0005) (0.0004) (0.0006) (0.0005)\n[0.000] [0.075] [0.020] [0.040] [0.010]\np70 0.0010** 0.0007 0.0010** 0.0007 0.0005\n(0.0003) (0.0004) (0.0003) (0.0004) (0.0006)\n[0.025] [0.124] [0.015] [0.109] [0.473]\nObservations 32447 32447 32447 32447 32447\nCity x Industry FE Yes Yes Yes Yes Yes\nTime FE Yes Yes Yes Yes Yes\nBartik Price Shocks Yes Yes Yes Yes Yes\nCity Specific Trends Yes Yes Yes\nIndustry Employment Yes Yes Yes\nLagged Financial GDP Yes\nEach row of the table corresponds to the estimates of unconditional quantile effects for a quantile of the distribution\nof informal wages. Minimum wage incidence is measured by “fraction at”, the number of workers that earn between\n0.9 and 1.1 times the new minimum wage in each city-industry block. Columns correspond to alternative\nspecifications. Standard errors clustered by city in parentheses. P-values in brackets. P-values are obtained with a\nwild bootstrap-t procedure with 200 replications. * p < 0.1; ** p < 0.05; *** p < 0.01.\nfeedback from the formal into the informal sector or if they are merely due to indexing in the\ninformal sector. I evaluate the cross-sectoral effects hypothesis in the next section.",
+      "page": 30,
+      "section": "Results",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "31\nEffects across Markets\nOne reason why we may observe wage increases in the informal sector in response to the\nminimum wage shock, in absence of compliance or indexing, is feedback from the formal sector.\nFor example, if workers are dismissed from the formal sector in response to the shock and are\nemployed in the informal sector paid at their marginal productivity, then we may observe\nincreases in informal wages around the minimum wage. One advantage of the incidence\nmeasures is that they allow me to test this hypothesis. In Figure 7 I report estimates of the effect\nof formal market incidence on the distribution of informal wages. I do not find any significant\neffects, implying the reaction of informal wages to the minimum wage occurs within the\ninformal market. This test, however, assumes that cross-sectoral effects occur within each\nindustry. As an alternative test in Appendix B, Figure B.7, I use the city-level minimum wage\nincidence (as opposed to the city-industry level incidence) in the formal sector as a regressor\nand also fail to find any impact in the informal sector.\nEffects on Employment\nIn this section I report estimates of the effect of minimum wage incidence on employment\nfor both sectors. I estimate the differences-in-differences models described in the empirical\nstrategy section for several measures of employment.\nTable 5 shows the estimates. For the formal sector, I do not find any significant effects on\nemployment in each of the city-industry blocks, in either specification. This suggests that the\nwage increases shown in the previous section were unaccompanied by adjustments on the\namount of labor used. While the 1999 crisis raised unemployment at the national level, my\nresults suggest that in the formal sector, city-industries with a larger incidence of the minimum\nwage did not experience lower employment as a response to the shock. This is consistent with",
+      "page": 31,
+      "section": "Results",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "32",
+      "page": 32,
+      "section": "Results",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "Figure 7: Cross-sectoral Effects of Formal Minimum Wage Incidence on the Distribution of",
+      "page": 32,
+      "section": "Results",
+      "content_type": "figure_caption",
+      "table_id": "7"
+    },
+    {
+      "text": "Informal Wages\nEstimates of unconditional quantile effects for percentiles of the distribution of informal wages. Minimum wage\nincidence is measured by “fraction affected”, the fraction of workers between the old and new minimum wage in the\nformal sector in each city-industry block. Controls include city-level employment and Bartik price shocks.\nShaded areas are 95% confidence intervals obtained using a wild bootstrap-t procedure with 200 replications, clustered\nby city.\nthe recent literature on small employment effects of minimum wages (Belman and Wolfson,\n2014). My results can exclusively address the short-term response to the minimum wage shock\nand are silent about long-term effects or effects on employment growth.\nFor the informal sector, I find slight evidence of negative employment effects. A larger\nminimum wage incidence is associated with lower employment in the city-industry.\nFrom these estimates, a 10 percent higher incidence implies 0.5 to 1 percent lower employment\nin this city-industry block. The elasticity to incidence ranges from -0.05 to 0.1. These effects are",
+      "page": 32,
+      "section": "Results",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "33\nTable 5: Effect of the Minimum Wage on Employment\nFormal Informal\nDep. var. (log) (1) (2) (3) (4) (5) (6)\nEmployment -0.0035 -0.0023 0.0035 -0.0082* -0.0053 -0.0033\n-0.0033 -0.004 -0.0026 -0.0042 -0.004 -0.0032\n[ 0.297 ] [ 0.493 ] [ 0.240 ] [ 0.056 ] [ 0.222 ] [ 0.301 ]\nHours worked 0.0099 0.0189** 0.0013 -0.0002 0.0272** 0.0214\n-0.0086 -0.0093 -0.0098 -0.012 -0.0128 -0.0153\n[ 0.325 ] [ 0.030 ] [ 0.876 ] [ 0.942 ] [ 0.020 ] [ 0.297 ]\nCity - industry Cells 714 714 714 714 714 714\nObservations 106468 106468 106468 32447 32447 32447\nCity x Industry FE Yes Yes Yes Yes Yes Yes\nTime FE Yes Yes Yes Yes Yes Yes\nBartik Price Shocks Yes Yes Yes Yes Yes Yes\nCity Specific Trends Yes Yes Yes Yes\nIndustry Trends Yes Yes\nEach row of the table corresponds to the estimates of the coefficient on minimum wage incidence for a different\nemployment variable. Minimum wage incidence is measured by “fraction affected”, the fraction of workers\nbetween the old and new minimum wage in each city-industry block. Columns 1 to 3 correspond to formal\nemployment. Columns 4 to 6 correspond to informal employment. Standard errors clustered by city in parentheses.\nP-values in brackets. P-values are obtained with a wild bootstrap-t procedure with 200 replications. * p < 0.1; ** p\n< 0.05; *** p < 0.01\nof a similar magnitude to those found in other studies for developing countries. Using the\n“fraction at” measure, Lemos (2009) finds elasticities of employment to the minimum wage in\nthe Brazilian informal sector ranging from -0.05 to 0.14, albeit not significant.\nThese results suggest there is some incidence of the minimum wage in the informal sector\nemployment. Together with my results on wages, I argue that this effect is not explained by\ncross-sectoral effects from the formal sector. Instead, it could be explained by lower rigidities\nin the informal sector that make dismissing workers easier. This is consistent with Mondragón",
+      "page": 33,
+      "section": "Results",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "34\net al. (2010), who find that minimum wage increases are associated with transitions from high\nincome to low income within the informal sector.17\nThese findings are also consistent with models of imperfect compliance with the minimum\nwage. Bhorat et al. (2015) show that in a model of partial compliance, there may be employment\nlosses following a minimum wage increase and wages may adjust upwards. Basu et al., (2010)\nand Soundararajan (2019) develop partial compliance models where employment effects depend\non the degree of enforcement. In these models, there are employment losses due to minimum\nwage increases below a certain enforcement threshold, where the market is competitive, and\nlimited employment losses above this threshold, where the model becomes an efficiency wage\nmodel. An alternative explanation for the employment results found here would be the existence\nof monopsonies in the formal sector and their absence in the informal sector.\nConcluding Remarks\nIn this paper, I have estimated the effect of an unexpected minimum wage shock on the\ninformal and formal wage distributions in Colombia. By comparing markets with a high and a\nlow incidence of the minimum wage, I find that only wages close to the minimum wage rise.\nThe increase for a 10 percentage points higher incidence is about 3 percent in the formal sector,\nand 1.3 percent in the informal sector. I observe slight evidence of negative employment effects\nin the informal sector, which cannot be explained by cross-sectoral effects from the formal\nsector.\nMy results concur with previous literature for developing countries. They are different from\nthe previous findings about the effect of the minimum wage in Colombia. The difference in\n17 If employers value their costs at national prices, then using a minimum wage incidence measure based on real\nwages constructed with a city-level price index may result in biased employment effects. In Appendix Table B.4 I\nshow that results are similar calculating the minimum wage incidence from real wages constructed with the national\nprice index.",
+      "page": 34,
+      "section": "Results",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "35\nfindings is in line with the literature on the compelling research designs in minimum wage\nresearch. My design exploits cross-sectional variation as well as time variation and controls for\ntime-varying heterogeneity, which makes my estimates more plausible than traditional\ndifference-in-differences analyses. The results suggest minimum wages affect the informal\nsector per se, and not through cross-sectoral effects from the formal sector, as the competitive\nmodel suggests.\nThere are several limitations of this study. First, it may be difficult to extrapolate these results\nto the effects of minimum wages on the formal and informal sector in other developing countries.\nAlthough useful for identification, the change in the real minimum wage studied here is\nparticular to this institutional setting and to the inflation shock. The results may not hold for\nlarger minimum wage increases, for minimum wage increases coming from other policy\nchanges, or for different contexts. Another limitation is the limited exploration of city-level\nheterogeneity in the results, due to the small sample sizes by city. The results suggest that\nheterogeneous city-level labor market shocks play a role in determining the response of wages\nto the minimum wage in either sector, but this could be examined further in other settings with\nmore detailed data. Another possible avenue for further research is to examine the role of other\nexplanations, like wage indexing, to explain the existence of direct effects and the absence of\nindirect effects in the informal sector.",
+      "page": 35,
+      "section": "Results",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "Aeberhardt, Romain; Givord, Pauline and Marbot, Claire. 2016. Spillover effect of the Minimum\nWage in France: An Unconditional Quantile Regression. Working Papers 201605, Center for\nResearch in Economics and Statistics.",
+      "page": 35,
+      "section": "References",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "36\nAllegretto, Sylvia; Dube, Arindrajit; Reich, Michael and Zipperer, Ben. 2017. Credible Research\nDesigns for Minimum Wage Studies: A Response to Neumark, Salas, and Wascher. ILR\nReview, 70(3), pp. 559–592.\nAllegretto, Sylvia A.; Dube, Arindrajit and Reich, Michael. 2011. Do Minimum Wages Really\nReduce Teen Employment? Accounting for Heterogeneity and Selectivity in State Panel Data.\nIndustrial Relations: A Journal of Economy and Society, 50(2), pp. 205–240.\nArango, Carlos A. and Pachón, Angélica. 2007. The Minimum Wage in Colombia 1984-2001:\nFavoring the Middle Class with a Bite on the Poor. Ensayos sobre Política Económica,\n25(55), pp. 148–193.\nArango, Luis E. and Flórez, Luz A. 2017. Informalidad laboral y elementos para un salario\nmínimo diferencial por regiones en Colombia. Borradores de Economía 1023, Banco de la\nRepublica de Colombia.\nArango, Luis Eduardo; García, Andrés Felipe and Posada, Carlos Esteban. 2008a. La\nmetodología de la Encuesta Continua de Hogares y el empalme de las series del mercado\nlaboral urbano de Colombia. Desarrollo y Sociedad, 61, pp. 207–248.\nArango, Luis Eduardo; Herrera, Paula and Posada, Carlos Esteban. 2008b. El salario mínimo:\naspectos generales sobre los casos de Colombia y otros países. Ensayos sobre Política\nEconómica - Banco de la República.\nAutor, David H.; Manning, Alan and Smith, Christopher L. 2016. The Contribution of the\nMinimum Wage to US Wage Inequality over Three Decades: A Reassessment. American\nEconomic Journal: Applied Economics, 8(1), pp. 58–99.\nBartik, Timothy J. 1991. Who Benefits from State and Local Economic Development Policies?\nW.E. Upjohn Institute for Employment Research.",
+      "page": 36,
+      "section": "References",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "37\nBasu, Arnab K.; Chau, Nancy H. and Kanbur, Ravi. 2010. Turning a Blind Eye: Costly\nEnforcement, Credible Commitment and Minimum Wage Laws. The Economic Journal,\n120(543), pp. 244–269.\nBeaudry, Paul; Green, David A. and Sand, Ben M. 2018. In Search of Labor Demand. American\nEconomic Review, 108(9), pp. 2714–57.\nBelman, Dale and Wolfson, Paul J. 2014. What Does the Minimum Wage Do? W.E. Upjohn\nInstitute for Employment Research.\nBertrand, Marianne; Duflo, Esther and Mullainathan, Sendhil. 2004. How Much Should We\nTrust Differences-in-Differences Estimates? The Quarterly Journal of Economics, 119(1), pp.\n249–275.\nBhorat, H., Kanbur, R., and Stanwix, B. 2015. Partial Minimum Wage Compliance. IZA Journal\nof Labor & Development, 4(1), p. 18.\nBhorat, H., Kanbur, R., and Stanwix, B. 2017. Minimum Wages in Sub-Saharan Africa: A\nPrimer. The World Bank Research Observer, 32(1), pp. 21-74.\nBorraz, F., and González‐Pampillón, N. 2017. Assessing the Distributive Effects of Minimum\nWage. Review of Development Economics, 21(4), 1081-1112.\nBosch, Mariano and Manacorda, Marco 2010. Minimum Wages and Earnings Inequality in\nUrban Mexico. American Economic Journal: Applied Economics, 2(4), pp. 128–49.\nBouchot, Jorge. 2018. The Unintended Distributional Consequences of the 2012 Rise in the\nMexican Minimum Wage. Working paper.\nCameron, A. Colin; Gelbach, Jonah B. and Miller, Douglas L. 2008. Bootstrap-Based\nImprovements for Inference with Clustered Errors. The Review of Economics and Statistics,\n90(3), pp. 414–427.",
+      "page": 37,
+      "section": "References",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "38\nCampos, Raymundo M.; Esquivel, Gerardo and Santillán, Alma S. 2017. El impacto del salario\nmínimo en los ingresos y el empleo en México. Revista CEPAL.\nCard, David. 1992. Using Regional Variation in Wages to Measure the Effects of the Federal\nMinimum Wage. Industrial and Labor Relations Review, 46(1), pp. 22–37.\nChernozhukov, Victor; Fernández-Val, Iván and Melly, Blaise. 2013. Inference on\nCounterfactual Distributions. Econometrica, 81(6), pp. 2205–2268.\nChetverikov, Denis; Larsen, Bradley and Palmer, Christopher. 2006. IV Quantile Regression for\nGroup-Level Treatments, With an Application to the Distributional Effects of Trade.\nEconometrica, 84(2), pp. 809–833.\nCorte Constitucional de Colombia. 1999. Sentencia C-815/99.\nDiNardo, John; Fortin, Nicole M. and Lemieux, Thomas. 1996. Labor Market Institutions and\nthe Distribution of Wages, 1973-1992: A Semiparametric Approach. Econometrica, 64(5),\npp. 1001–44.\nDinkelman, Taryn and Ranchhod, Vimal. 2012. Evidence on the Impact of Minimum Wage\nLaws in an Informal Sector: Domestic Workers in South Africa. Journal of Development\nEconomics, 99(1), pp. 27–45.\nDube, Arindrajit; Lester, T William and Reich, Michael. 2010. Minimum Wage Effects across\nState Borders: Estimates Using Contiguous Counties. The Review of Economics and Statistics,\n92(4), pp. 945–964.\nEl-Hamidi, Fatma and Terrell, Katherine. 2002. The Impact of Minimum Wages on Wage\nInequality and Employment in the Formal and Informal Sector in Costa Rica. In Inequality\naround the World, pp. 188–203. Springer.",
+      "page": 38,
+      "section": "References",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "39\nEngbom, N., & Moser, C. (2018). Earnings inequality and the minimum wage: Evidence from\nBrazil. Federal Reserve Bank of Minneapolis-Opportunity and Inclusive Growth Institute\nWorking Paper, 7, 18-50.\nFajnzylber, Pablo. 2001. Minimum Wage Effects Throughout the Wage Distribution: Evidence\nfrom Brazil’s Formal and Informal Sectors. Working paper.\nFan, Maoyong and Alves Pena, Anita. 2019. Do Minimum Wage Laws affect those who are Not\nCovered? Evidence from Agricultural and Non-Agricultural Workers. PloS one, 14(10).\nFirpo, Sergio; Fortin, Nicole and Lemieux, Thomas. 2009a. Unconditional Quantile\nRegressions. Econometrica, 77(3), pp. 953–973.\nFirpo, Sergio; Fortin, Nicole M. and Lemieux, Thomas. 2009b. Supplement to Unconditional\nQuantile Regressions: Estimation and Testing. Econometrica.\nFortin, Nicole; Lemieux, Thomas and Firpo, Sergio. 2011. Decomposition Methods in\nEconomics. In: Handbook of Labor Economics, volume 4, pp. 1–102. Elsevier.\nGarnero, Andrea. 2018. The Dog that Barks Doesn’t Bite: Coverage and Compliance of Sectoral\nMinimum Wages in Italy. IZA Journal of Labor Policy, 7(1), pp. 3.\nGindling, Thomas H. and Terrell, Katherine. 2005. The Effect of Minimum Wages on Actual\nWages in Formal and Informal Sectors in Costa Rica. World Development, 33(11), pp. 1905\n– 1921.\nGindling, Thomas H. and Terrell, Katherine. 2007. The effects of multiple minimum wages\nthroughout the labor market: The case of Costa Rica. Labour Economics, 14(3), pp. 485 –\n511.\nGómez-Gonzalez, José and Kiefer, Nicholas M. 2009. Bank Failure: Evidence From The",
+      "page": 39,
+      "section": "References",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "40\nColombian Financial Crisis. The International Journal of Business and Finance Research,\n3(2), pp. 15–31.\nHam, Andrés. 2018. The Consequences of Legal Minimum Wages in Honduras. World\nDevelopment, 102, pp. 135 – 157.\nHarris, John R. and Todaro, Michael P. 1970. Migration, Unemployment and Development: A\nTwo-Sector Analysis. American Economic Review, 60, pp. 126–142.\nHohberg, Maike and Lay, Jann. 2015. The Impact of Minimum Wages on Informal and Formal\nLabor Market Outcomes: Evidence from Indonesia. IZA Journal of Labor & Development,\n4(1), p. 14.\nKhamis, Melanie. 2013. Does the Minimum Wage Have a Higher Impact on the Informal than\non the Formal Labour Market? Evidence from Quasi-experiments. Applied Economics, 45(4),\npp. 477–495.\nLathapipat, Dilaka and Poggi, Cecilia. 2016. From Many to One: Minimum Wage Effects in\nThailand. PIER Discussion Papers 041, Puey Ungphakorn Institute for Economic Research.\nLee, David S. 1999. Wage Inequality in the United States during the 1980s: Rising Dispersion\nor Falling Minimum Wage? The Quarterly Journal of Economics, 114(3), pp. 977–1023.\nLemos, Sara. 2009. Minimum Wage Effects in a Developing Country. Labour Economics, 16(2),\npp. 224 – 237.\nMaloney, William and Mendez, Jairo. 2004. Measuring the Impact of Minimum Wages.\nEvidence from Latin America. In: Law and Employment: Lessons from Latin America and\nthe Caribbean, NBER Chapters, pp. 109–130. National Bureau of Economic Research.",
+      "page": 40,
+      "section": "References",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "41\nMata, José and Machado, José A. F. 2005. Counterfactual Decomposition of Changes in Wage\nDistributions using Quantile Regression. Journal of Applied Econometrics, 20(4), pp. 445–\n465.\nMeyer, Bruce D.; Viscusi, W. Kip and Durbin, David L. 1995. Workers’ Compensation and\nInjury Duration: Evidence from a Natural Experiment. American Economic Review, 85(3),\npp. 322–40.\nMondragón, Camilo; Peña, Ximena and Wills, Daniel. 2010. Labor Market Rigidities and\nInformality in Colombia. Economia, 11(1).\nNeumark, David; Schweitzer, Mark and Wascher, William. 2004. Minimum Wage Effects\nthroughout the Wage Distribution. Journal of Human Resources, 39(2).\nParra, Claudia Elena and Salazar, Natalia. 2000. La crisis financiera y la experiencia\ninternacional. Boletines de Divulgación Económica 1, Departamento Nacional de Planeación.\nSolon, Gary; Haider, Steven J. and Wooldridge, Jeffrey M. 2015. What Are We Weighting For?\nJournal of Human Resources, 50(2), pp. 301–316.\nSoundararajan, Vidhya. 2019. Heterogeneous Effects of Imperfectly Enforced Minimum Wages\nin Low-Wage Labor Markets. Journal of Development Economics, 140, pp. 355–374.\nStewart, Mark B. 2002. Estimating the Impact of the Minimum Wage Using Geographical Wage\nVariation. Oxford Bulletin of Economics and Statistics, 64(0), pp. 583–605.\nVillar, Leonardo; Salamanca, David and Murcia, Andrés. 2005. Crédito, represión financiera y\nflujos de capitales en Colombia: 1974-2003. Desarrollo y Sociedad.\nWong, Sara A. 2019. Minimum Wage Impacts on Wages and Hours Worked of Low-Income\nWorkers in Ecuador. World Development, 116, pp. 77-99.",
+      "page": 41,
+      "section": "References",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "42",
+      "page": 42,
+      "section": "References",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "A Data\nA.1 Data sources\nThe data on wages, demographic and labor market characteristics comes from Colombia’s\nNational Household Survey (ENH) for the years 1996-2000. The ENH was a quarterly rotating\ncross-sectional survey used to calculate labor market indicators at a National and City Level. It\nis representative of the main metropolitan areas in the country. From 2001, there was a change\nin the methodology of the survey and it was replaced by the Continuous Household Survey\n(ECH), with an extended sample and monthly data collection. As noted by Arango et al. (2008a),\nthe methodological differences between surveys make time comparisons difficult, so I restrict\nmy analysis to ENH data. I only analyze data for the 7 cities that are present in all quarters of\nthe survey and that have a large sample size per city per quarter: Barranquilla, Bogotá,\nBucaramanga, Cali, Manizales, Medellín and Pasto. The survey collects labor market\ninformation on individuals, including occupation status, salaries and weekly hours of work,\nalong with demographic and labor market characteristics.\nThe monthly minimum wage information comes from the Colombian Central Bank.18\nEmployees who earn the minimum wage are also entitled to a transportation subsidy, which\nvaries from around 8 to 10 percent of the monthly minimum wage. I obtained transportation\nsubsidy information from the Colombian Institute of Tax Law. All minimum wage workers\nreceive the transportation subsidy, although it is not considered part of the wage for social\nsecurity purposes. All the minimum wage figures include this transportation subsidy as part of\nthe minimum wage.\n18 http://www.banrep.gov.co/es/indice-salarios",
+      "page": 42,
+      "section": "Appendix",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "43\nTo obtain real wages, I use city-level consumer price indexes with 1998 as the base year\nfrom the Colombian National Department of Statistics (DANE).19 This dataset includes\nconsumer price indices at the city-income group level. I use the city-level indices to separate the\neffects on the real wage distribution that may arise from differential inflation across different\nincome groups.\nAnnual financial sector GDP at the state level comes from DANE. Each state corresponds to\na single city in the sample. I keep GDP coming from the Financial Intermediation, Real Estate\nand Financial Firms sectors.\nA.2 Sample Selection and Classification of Workers as Formal or Informal\nFor the results on wages, I only consider occupied workers in the private and government sectors\nand exclude family-member non-remunerated workers, self-employed workers, and business\nowners. I also exclude domestic workers. A large share of these workers earns wages below the\nminimum wage, but their wages may be nevertheless indexed to it. I consider only workers who\nreport wages for the last month, who are between 12 and 65 years of age, and who work between\n30 and 50 hours a week. This is intended to mitigate the measurement error in hours, and to\nensure that my results are comparable to those of Arango and Pachón (2007) to some degree.\nFollowing Solon et al. (2015), all my descriptive statistics use survey weights, but the main\nresults of the paper instead use bootstrapping to account for the heteroscedasticity due to the\nsurvey design.\nFormal workers are defined as workers who are covered by health insurance by their firm,\nas required by Colombian law. Specifically, in the time period I analyze, the law required the\nemployer to enroll its permanent workers in health insurance, and share its costs with the\n19 http://www.dane.gov.co/index.php/indices-de-precios-y-costos/indice-de-precios-al-consumidor-ipc",
+      "page": 43,
+      "section": "Appendix",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "44\nemployee. For transitory workers, a percentage of the worker’s salary is intended to be used to\npay for health insurance, and the employee has to provide proof of health insurance enrollment\nto the employer. For the second and fourth quarters of 1996, the survey did not ask specifically\nfor health insurance coverage sponsored by the employer, but rather for general enrollment in\nhealth insurance. We use workers who reported to be covered by health insurance for those\nperiods. For the rest of the sample, these variables are highly correlated. For 1996q3, only about\n6 percent of workers in the estimation sample who were enrolled in health insurance did not\nhave employer-provided health insurance, and these accounted for about 4.8 percent of total\nworkers. If this percentage is similar for 1996q2 and 1996q4, then at most 4.8 percent of workers\nin the sample may be misclassified as formal in these quarters.\nMy choice of an informality measure is based on availability and performance. The health\nmeasure is available for all but two quarters of the sample, as mentioned above. Mondragón et\nal. (2010) show that this measure of informality and alternative measures, such as whether the\nemployer contributes to the employee pension or whether the firm is large, mostly concur and\nexhibit the same dynamics. The firm size definition, as Mondragón et al. (2010) notes, is not\nrelated to labor market regulations. The pension-based definition is highly correlated with the\nhealth-based definition: according to Mondragón et al. (2010), each year only 1 percent of\nworkers classified as informal under the health-based criterion would be labeled formal under\nthe pension criterion. These alternative measures are not available for the entire sample I\nconsider.\nI classify formal and informal workers into economic activities using a 1-digit ISIC Rev. 2\nclassification. Although the survey has information at the 2 digit level, sample sizes within the\n2 digit categories are small. From the 9 1-digit categories, I exclude Agriculture, Mining and",
+      "page": 44,
+      "section": "Appendix",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "45\nUtilities due to small sample sizes. Overall these excluded industries comprise no more than 2\npercent of the pooled sample.\nOverall, the pooled sample is representative of 11.6 million working-age individuals, of\nwhich 6.04 million are occupied (51.76 percent). Of these occupied workers, 63.2 percent are\nnot government workers or self-employed. Excluding workers older than 65 years reduces the\nsample to 62.8 percent of occupied workers. Those who work between 30 and 50 hours a week\nare 42.8 percent of the occupied. Those who are in the six cities and seven industries of interest\nare 39.48 percent of the occupied.\nA.3 Variable Construction\nThe nominal wage is self-reported by individuals. Although most wages are reported at the\nmonthly level, some of them are reported at higher or lower frequencies: for those cases, I\ncalculate monthly equivalents. I obtain real wages deflating this variable using city-level price\nindices, and I deflate the minimum wage using the countrywide consumer price index. I focus\non log real monthly wages throughout all the analysis.\nTo account for local labor demand shocks, I use city-level Bartik shock variables, which are\ncommon in the local labor markets literature (Bartik, 1991). These are intended to capture local\nlabor demand shocks unrelated to local labor supply. The Bartik price and Bartik quantity shocks\nare defined as\n𝐵𝑃 ≡\n∑𝐽\n𝐸𝑚𝑝𝑆ℎ𝑎𝑟𝑒 ×(𝐸𝑚𝑝 −𝐸𝑚𝑝 ), (A.1)\n𝑐𝑡 𝑗=1 𝑐𝑗,𝑡−1 −𝑐,𝑗,𝑡 −𝑐,𝑗,𝑡−1\n𝐵𝑄 ≡\n∑𝐽\n𝐸𝑚𝑝𝑆ℎ𝑎𝑟𝑒 ×(𝑤 −𝑤 ),\n𝑐𝑡 𝑗=1 𝑐𝑗,𝑡−1 −𝑐,𝑗,𝑡 −𝑐,𝑗,𝑡−1\nwhere 𝐸𝑚𝑝𝑆ℎ𝑎𝑟𝑒 is the preexisting industry share, 𝐸𝑚𝑝 is the average employment\n𝑐𝑗,𝑡−1 −𝑐,𝑗,𝑡\nacross cities in industry j excluding city c, and 𝑤 is the average nominal wage across cities\n−𝑐,𝑗,𝑡\nin industry j excluding city c.",
+      "page": 45,
+      "section": "Appendix",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "46\nB Additional Estimation Results\nFigure B.1: Comparison of Estimated Effects on the Formal Wage Distribution, Different\nMeasures of Minimum Wage Incidence\n(a) Fraction Affected, Fraction At and Minimum to Median\n(b) Fraction At for Different Percentages Around the Minimum Wage\nComparison of unconditional quantile effects for percentiles of the distribution of formal wages, using different\nmeasures of minimum wage incidence. Panel (a) shows estimates using different minimum wage variables.\n“Fraction affected” counts the number of workers who are between the old and the new minimum wage in each\ncity-industry block. “Fraction at” counts the number of workers that earn between 0.9 and 1.1 times the new\nminimum wage in each city-industry block. “Minimum to median” is the ratio of the new minimum wage to the\nold median wage in each city-industry block. “Violation index” is the average deviation of wages below the new\nminimum wage from the new minimum wage. Panel (b) uses “fraction at” and changes the interval around the\nminimum wage, from 0.8-1.2 to 0.95-1.05, reducing the interval length by 0.5 each time.",
+      "page": 46,
+      "section": "Appendix",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "47\nFigure B.2: Placebo Check: Estimates of the Effect of Minimum Wage Incidence on Formal\nWages previous to the Minimum Wage Shock, 1998q3-1998q4\nEstimates of unconditional quantile effects for percentiles of the distribution of formal wages before the minimum\nwage shock. Minimum wage incidence is measured by “fraction affected”, the fraction of workers between the old\nand new minimum wage in each city-industry block. Controls include city-level employment and Bartik price\nshocks. Shaded areas are 95% confidence intervals obtained using a wild bootstrap-t procedure with 200\nreplications clustered by city.",
+      "page": 47,
+      "section": "Appendix",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "48\nFigure B.3: Evolution of the Density of Formal Wages\nComparison of densities for successive quarters. The density lines only separate in the first quarters of each year\nwhere the minimum wage increases occur. Data are from the National Household Survey (ENH). Real wages for\n1998 converted to US dollars using a 1 dollar = 2000 pesos exchange rate for the entire period. Observations with\nlog wages smaller than 3.5 or larger than 5.5 are excluded. Densities are estimated with a Gaussian kernel and a\nbandwidth of 0.08. The vertical line is the level of real minimum wage for the latter quarter in each panel.",
+      "page": 48,
+      "section": "Appendix",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "49\nFigure B.4: Comparison of Estimated Effects after 1991q1 with Effects for Other Years\n(a) Formal Sector, 1996q2-1997q4, (b) Formal Sector, 1996q2-1998q4,\nChange in 1997q1 Change in 1998q1\n(c) Informal Sector, 1996q2-1997q4, (d) Formal Sector, 1996q2-1998q4,\nChange in 1997q1 Change in 1998q1\nUnconditional quantile effects for percentiles of the distribution of formal and informal wages for different dates.\nThe minimum wage incidence is measured by “fraction affected”, the number of workers between the old and new\nminimum wage. All regressions include controls for city-level employment and Bartik price shocks. Panels (a) and\n(c) show results for 1996q2-1997q4, using the change in the minimum wage in 1997q1. Panel (a) shows results for\nthe formal sector, and panel (c) shows results for the informal sector. Panels (b) and (d) show results for 1996q2-\n1998q4, using the change in the minimum wage in 1998q1. Panel (b) shows results for the formal sector, and panel\n(d) shows results for the informal sector.",
+      "page": 49,
+      "section": "Appendix",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "50\nFigure B.5: Comparison of Estimated Effects on the Informal Wage Distribution, Different\nMeasures of Minimum Wage Incidence\n(a) Fraction Affected, Fraction At and Minimum to Median\n(b) Fraction At for Different Percentages Around the Minimum Wage\nComparison of unconditional quantile effects for percentiles of the distribution of formal wages, using different\nmeasures of minimum wage incidence. Panel (a) shows estimates using different minimum wage variables.\n“Fraction affected” counts the number of workers who are between the old and the new minimum wage in each\ncity-industry block. “Fraction at” counts the number of workers that earn between 0.9 and 1.1 times the new\nminimum wage in each city-industry block. “Minimum to median” is the ratio of the new minimum wage to the\nold median wage in each city-industry block. “Violation index” is the average deviation of wages below the new\nminimum wage from the new minimum wage. Panel (b) uses “fraction at” and changes the interval around the\nminimum wage, from 0.8-1.2 to 0.95-1.05, reducing the interval length by 0.5 each time.",
+      "page": 50,
+      "section": "Appendix",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "51\nFigure B.6: Placebo Check: Estimates of the Effect of the Minimum Wage Incidence on\nInformal Wages Previous to the Minimum Wage Shock, 1998q3-1998q4\nEstimates of unconditional quantile effects for percentiles of the distribution of formal wages before the minimum\nwage shock. Minimum wage incidence is measured by “fraction at”, the number of workers that earn between 0.9\nand 1.1 times the new minimum wage in each city-industry block. Controls include city-level employment and\nBartik price shocks. Shaded areas are 95% confidence intervals obtained using a wild bootstrap-t procedure with\n200 replications clustered by city.",
+      "page": 51,
+      "section": "Appendix",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "52\nFigure B.7: Cross-sectoral Effects of City Level Formal Minimum Wage Incidence on the\nDistribution of Informal Wages\nEstimates of unconditional quantile effects for percentiles of the distribution of informal wages. Minimum wage\nincidence is measured by “fraction affected”, the fraction of workers between the old and new minimum wage in\nthe formal sector in each city. Controls include city-level employment, city trends and Bartik price shocks. Shaded\nareas are 95% confidence intervals obtained using a wild bootstrap-t procedure with 200 replications clustered by\ncity.",
+      "page": 52,
+      "section": "Appendix",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "53\nTable B.1: Effect of the Minimum Wage Incidence on the Formal Wage Distribution. City-\nLevel Estimates.\nBarranqui- Bogotá Bucara- Cali Maniza- Medellín Pasto\nlla manga les\np5 0.0031** 0.0008 0.0018** 0.0037 0.0032 -0.0010 0.0038\n(0.0006) (0.0025) (0.0002) (0.0013) (0.0013) (0.0008) (0.0017)\n[0.020] [0.886] [0.050] [0.119] [0.517] [0.418] [0.348]\np10 0.0050 0.0076 0.0031** 0.0067 0.0031 0.0027** 0.0014\n(0.0002) (0.0053) (0.0003) (0.0025) (0.0024) (0.0002) (0.0010)\n[0.144] [0.269] [0.020] [0.244] [0.517] [0.005] [0.348]\np15 0.0051* 0.0018 0.0020 0.0074 0.0024 0.0011** 0.0021\n(0.0004) (0.0042) (0.0004) (0.0034) (0.0026) (0.0004) (0.0012)\n[0.080] [0.955] [0.149] [0.229] [0.995] [0.010] [0.289]\np20 0.0042 -0.0004 0.0029 0.0075 0.0038 0.0020*** 0.0022\n(0.0006) (0.0037) (0.0002) (0.0033) (0.0031) (0.0003) (0.0012)\n[0.159] [0.975] [0.159] [0.279] [0.557] [0.000] [0.363]\np25 0.0016 -0.0016 0.0040** 0.0065 0.0036 0.0033** -0.0009\n(0.0003) (0.0053) (0.0003) (0.0039) (0.0030) (0.0002) (0.0009)\n[0.124] [0.836] [0.020] [0.393] [0.448] [0.050] [0.756]\np30 0.0001 -0.0050 0.0015** 0.0037 0.0016 0.0037** 0.0007\n(0.0008) (0.0094) (0.0002) (0.0034) (0.0011) (0.0002) (0.0012)\n[0.940] [0.975] [0.005] [0.378] [0.284] [0.030] [0.816]\np50 -0.0065 -0.0044 0.0030** -0.0052** 0.0012 -0.0032* 0.0038**\n(0.0014) (0.0112) (0.0006) (0.0009) (0.0018) (0.0008) (0.0017)\n[0.194] [0.831] [0.040] [0.030] [0.547] [0.080] [0.020]\nFraction 12.94% 4.87% 18.36% 9.74% 10.02% 14.26% 9.62%\nAffected\nObservations 17565 19505 12683 14077 14047 18117 10474\nIndustry FE Yes Yes Yes Yes Yes Yes Yes\nTime FE Yes Yes Yes Yes Yes Yes Yes\nEach row of the table corresponds to the estimates of unconditional quantile effects for a quantile of the distribution\nof formal wages in each city. Minimum wage incidence is measured by “fraction affected”, the fraction of workers\nbetween the old and new minimum wage in each city-industry block. Standard errors clustered by industry in\nparentheses. P-values in brackets. P-values are obtained with a wild bootstrap-t procedure with 200 replications. *\np < 0.1; ** p < 0.05; *** p < 0.01.",
+      "page": 53,
+      "section": "Appendix",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "54\nTable B.2: Effect of the Minimum Wage Incidence on the Informal Wage Distribution. City-\nLevel Estimates.\nBarranqui- Bogotá Bucara- Cali Maniza- Medellín Pasto\nlla manga les\np40 0.0010 -0.0001 0.0033* 0.0008 0.0004 -0.0005 0.0013\n(0.0010) (0.0008) (0.0002) (0.0010) (0.0011) (0.0004) (0.0024)\n[0.388] [0.995] [0.090] [0.557] [0.756] [0.229] [0.592]\np45 0.0017** 0.0007 0.0017 0.0014 0.0013 0.0001 0.0037\n(0.0011) (0.0010) (0.0004) (0.0009) (0.0012) (0.0004) (0.0018)\n[0.030] [0.587] [0.219] [0.269] [0.562] [0.811] [0.154]\np50 0.0016** 0.0008 0.0020 0.0013 0.0009 -0.0000 0.0002\n(0.0008) (0.0011) (0.0004) (0.0014) (0.0007) (0.0004) (0.0022)\n[0.010] [0.557] [0.129] [0.383] [0.483] [0.910] [0.945]\np55 0.0017 -0.0002 0.0020*** 0.0007 0.0019 -0.0002 -0.0002\n(0.0011) (0.0011) (0.0004) (0.0015) (0.0006) (0.0006) (0.0023)\n[0.119] [0.905] [0.000] [0.716] [0.119] [0.985] [0.955]\np60 0.0002 -0.0011 0.0020 0.0007 0.0020 -0.0005 -0.0012\n(0.0014) (0.0015) (0.0005) (0.0023) (0.0012) (0.0006) (0.0024)\n[0.726] [0.428] [0.254] [0.622] [0.259] [0.418] [0.866]\np65 0.0014 -0.0006 0.0017** 0.0003 0.0025* -0.0010 0.0022\n(0.0017) (0.0027) (0.0004) (0.0022) (0.0012) (0.0007) (0.0024)\n[0.488] [0.910] [0.020] [0.995] [0.090] [0.483] [0.438]\np70 0.0010 -0.0002 0.0012** -0.0001 0.0031 -0.0010 0.0015\n(0.0014) (0.0033) (0.0003) (0.0021) (0.0017) (0.0010) (0.0018)\n[0.627] [0.866] [0.010] [0.955] [0.109] [0.502] [0.428]\nFraction At 35.98% 44.35% 43.14% 37.75% 32.98% 44.57% 22.19%\nObservations 4886 5672 4776 4453 3350 3890 5420\nIndustry FE Yes Yes Yes Yes Yes Yes Yes\nTime FE Yes Yes Yes Yes Yes Yes Yes\nEach row of the table corresponds to the estimates of unconditional quantile effects for a quantile of the distribution\nof formal wages in each city. Minimum wage incidence is measured by “fraction at”, the number of workers that\nearn between 0.9 and 1.1 times the new minimum wage in each city-industry block. Standard errors clustered by\nindustry in parentheses. P-values in brackets. P-values are obtained with a wild bootstrap-t procedure with 200\nreplications. * p < 0.1; ** p < 0.05; *** p < 0.01.",
+      "page": 54,
+      "section": "Appendix",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "55\nTable B.3: Tests of Differences between Effects in the Formal and Informal Sectors\nFraction Affected\nTest P-value\nAll Formal = All Informal 0.03\nFormal p5-p25 = Informal p5-p25 0.00\nFormal p40-p70 = Informal p40-p70 0.84\nFormal p5-p25 = Informal p45-p65 0.00\nFraction At\nTest P-value\nAll Formal = All Informal 0.00\nFormal p5-p25 = Informal p5-p25 0.00\nFormal p40-p70 = Informal p40-p70 0.08\nFormal p5-p25 = Informal p45-p65 0.00\nEach row of the table shows the results of a joint test of differences across estimates from the formal and informal\nsector. P-values are obtained from the results of a chi-squared test based on a joint coefficient bootstrap with 200\nreplications.",
+      "page": 55,
+      "section": "Appendix",
+      "content_type": "text",
+      "table_id": null
+    },
+    {
+      "text": "56\nTable B.4: Effect of the Minimum Wage on Employment. Wages Deflated by National\nInflation.\nFormal Informal\nDep. var. (log) (1) (2) (3) (4) (5) (6)\n0.0006 0.0024 0.0047* -0.0092* -0.0080 -0.0053\nEmployment\n(0.0040) (0.0050) (0.0023) (0.0043) (0.0047) (0.0038)\n[0.982] [0.673] [0.072] [0.068] [0.154] [0.192]\n0.0035 0.0129 -0.0034 -0.0155 0.0032 -0.0057\nHours worked\n(0.0079) (0.0106) (0.0114) (0.0132) (0.0132) (0.0125)\n[0.635] [0.232] [0.906] [0.261] [0.739] [0.745]\nCity - industry Cells 714 714 714 714 714 714\nObservations 106468 106468 106468 32447 32447 32447\nCity x Industry FE Yes Yes Yes Yes Yes Yes\nTime FE Yes Yes Yes Yes Yes Yes\nBartik Price Shocks Yes Yes Yes Yes Yes Yes\nCity Specific Trends Yes Yes Yes Yes\nIndustry Trends Yes Yes\nEach row of the table corresponds to the estimates of the coefficient on minimum wage incidence for a different\nemployment variable. Minimum wage incidence is measured by “fraction affected”, the fraction of workers\nbetween the old and new minimum wage in each city-industry block. Real wages are calculated deflating by\nnational inflation, as opposed to city-level inflation. Columns 1 to 3 correspond to formal employment. Columns 4\nto 6 correspond to informal employment. Standard errors clustered by city in parentheses. P-values in brackets. P-\nvalues are obtained with a wild bootstrap-t procedure with 200 replications. * p < 0.1; ** p < 0.05; *** p < 0.01",
+      "page": 56,
+      "section": "Appendix",
+      "content_type": "text",
+      "table_id": null
+    }
+  ]
+}

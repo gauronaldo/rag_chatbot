@@ -72,7 +72,7 @@ def _normalize_section_title(line: str) -> str | None:
         return markdown_match.group(2).strip()
 
     numbered_match = re.match(r"^(\d+(?:\.\d+)*\.?)\s+([A-Z][^\n]{2,120})$", line)
-    if numbered_match and len(line.split()) <= 14:
+    if numbered_match and len(line.split()) <= 14 and "@" not in line and "," not in line:
         return line.rstrip(".")
 
     keywords = {
@@ -127,6 +127,51 @@ def _extract_table_number(text: str, fallback_index: int | None = None) -> str |
     return None
 
 
+def _extract_figure_number(text: str) -> str | None:
+    match = re.search(r"\bfig(?:ure)?\.?\s+([a-z]?\d+(?:\.\d+)?)\b", text, flags=re.IGNORECASE)
+    return match.group(1).lower() if match else None
+
+
+def _figure_caption_from_line(line: str) -> str | None:
+    if re.match(r"^\s*(fig(?:ure)?\.?\s+[a-z]?\d+(?:\.\d+)?[\.:)]?)\s+", line, flags=re.IGNORECASE):
+        return line.strip()
+    return None
+
+
+def _append_text_blocks(
+    blocks: list[StructuredBlock],
+    content: str,
+    page: int | None,
+    section: str,
+) -> str:
+    if section != "Abstract":
+        blocks.append(StructuredBlock(content, page, section))
+        return section
+
+    footnote_match = re.search(r"\n\d+\s+[A-Z][^\n]+(?:Email:|@)", content)
+    if footnote_match:
+        abstract_part = content[: footnote_match.start()].strip()
+        footnote_part = content[footnote_match.start() :].strip()
+        if abstract_part:
+            blocks.append(StructuredBlock(abstract_part, page, "Abstract"))
+        if footnote_part:
+            blocks.append(StructuredBlock(footnote_part, page, "Front Matter", "footnote"))
+        return section
+
+    jel_match = re.search(r"(?is)(.*?\bJEL Codes?[^\n]*)(\n.+)", content)
+    if jel_match:
+        abstract_part = jel_match.group(1).strip()
+        introduction_part = jel_match.group(2).strip()
+        if abstract_part:
+            blocks.append(StructuredBlock(abstract_part, page, "Abstract"))
+        if introduction_part:
+            blocks.append(StructuredBlock(introduction_part, page, "Introduction"))
+        return "Introduction"
+
+    blocks.append(StructuredBlock(content, page, section))
+    return section
+
+
 def _blocks_from_markdown(text: str, default_page: int | None = None) -> list[StructuredBlock]:
     blocks: list[StructuredBlock] = []
     section = "Document"
@@ -135,10 +180,10 @@ def _blocks_from_markdown(text: str, default_page: int | None = None) -> list[St
     table_index = 0
 
     def flush_paragraph() -> None:
-        nonlocal paragraph
+        nonlocal paragraph, section
         content = "\n".join(paragraph).strip()
         if content:
-            blocks.append(StructuredBlock(content, default_page, section))
+            section = _append_text_blocks(blocks, content, default_page, section)
         paragraph = []
 
     def flush_table() -> None:
@@ -162,6 +207,21 @@ def _blocks_from_markdown(text: str, default_page: int | None = None) -> list[St
             flush_table()
             flush_paragraph()
             section = heading
+            continue
+
+        figure_caption = _figure_caption_from_line(line)
+        if figure_caption:
+            flush_table()
+            flush_paragraph()
+            blocks.append(
+                StructuredBlock(
+                    figure_caption,
+                    default_page,
+                    section,
+                    "figure_caption",
+                    _extract_figure_number(figure_caption),
+                )
+            )
             continue
 
         if "|" in line and (table_lines or line.count("|") >= 2):
@@ -189,6 +249,9 @@ def _blocks_to_markdown(blocks: list[StructuredBlock]) -> str:
         if block.content_type == "table":
             table_label = f"Table {block.table_id}" if block.table_id else "Table"
             lines.append(f"**{table_label}**")
+        if block.content_type == "figure_caption":
+            figure_label = f"Figure {block.table_id}" if block.table_id else "Figure"
+            lines.append(f"**{figure_label} caption**")
         lines.append(block.text.strip())
         lines.append("")
     return "\n".join(lines).strip()
@@ -237,12 +300,16 @@ def _read_pdf_structured(content: bytes) -> tuple[str, list[StructuredBlock]]:
 
 
 def _block_metadata(block: StructuredBlock) -> dict:
-    return {
+    metadata = {
         "page": block.page,
         "section": block.section,
         "content_type": block.content_type,
-        "table_id": block.table_id,
     }
+    if block.content_type == "table":
+        metadata["table_id"] = block.table_id
+    if block.content_type == "figure_caption":
+        metadata["figure_id"] = block.table_id
+    return metadata
 
 
 def _prepared_block_text(block: StructuredBlock) -> str:
@@ -252,6 +319,9 @@ def _prepared_block_text(block: StructuredBlock) -> str:
     if block.content_type == "table":
         table_label = f"Table {block.table_id}" if block.table_id else "Table"
         prefix_parts.append(f"Content type: {table_label}")
+    if block.content_type == "figure_caption":
+        figure_label = f"Figure {block.table_id}" if block.table_id else "Figure"
+        prefix_parts.append(f"Content type: {figure_label} caption")
     return "\n".join(prefix_parts) + "\n\n" + block.text.strip()
 
 

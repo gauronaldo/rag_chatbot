@@ -1,10 +1,14 @@
 from __future__ import annotations
 
+import json
+import re
 import time
 from collections.abc import Callable, Iterator
+from dataclasses import asdict
+from pathlib import Path
 
 from rag_mvp.config import AppConfig
-from rag_mvp.documents import load_file, split_into_chunks
+from rag_mvp.documents import Document, load_file, split_into_chunks
 from rag_mvp.ollama_client import OllamaClient
 from rag_mvp.registry import DocumentRecord, JsonDocumentRegistry
 from rag_mvp.vector_store import VectorStore
@@ -43,6 +47,10 @@ class RagPipeline:
         if existing:
             self._progress(progress_callback, 0.35, f"Removing stale chunks for {filename}")
             self.vector_store.delete_document(existing.document_id, existing.chunk_ids)
+            self._delete_processed_artifacts(existing.document_id)
+
+        self._progress(progress_callback, 0.4, f"Saving structured artifacts for {filename}")
+        self._save_processed_artifacts(document)
 
         self._progress(progress_callback, 0.45, f"Chunking {filename}")
         chunks = split_into_chunks(document, self.config.chunk_size, self.config.chunk_overlap)
@@ -68,10 +76,12 @@ class RagPipeline:
             return
         self.vector_store.delete_document(record.document_id, record.chunk_ids)
         self.registry.remove(document_id)
+        self._delete_processed_artifacts(record.document_id)
 
     def reset(self) -> None:
         self.vector_store.reset()
         self.registry.clear()
+        self._clear_processed_artifacts()
 
     def retrieve(self, question: str, top_k: int | None = None) -> list[dict]:
         return self.vector_store.search(question, top_k or self.config.top_k)
@@ -84,6 +94,8 @@ class RagPipeline:
             page = metadata.get("page")
             section = metadata.get("section")
             content_type = metadata.get("content_type")
+            table_id = metadata.get("table_id")
+            figure_id = metadata.get("figure_id")
             source_parts = [filename]
             if page:
                 source_parts.append(f"page {page}")
@@ -91,6 +103,10 @@ class RagPipeline:
                 source_parts.append(f"section: {section}")
             if content_type:
                 source_parts.append(f"type: {content_type}")
+            if table_id:
+                source_parts.append(f"table: {table_id}")
+            if figure_id:
+                source_parts.append(f"figure: {figure_id}")
             context_blocks.append(f"[S{index}] {'; '.join(source_parts)}\n{ctx['text']}")
         context_text = "\n\n".join(context_blocks)
         return (
@@ -122,3 +138,38 @@ class RagPipeline:
     ) -> None:
         if progress_callback:
             progress_callback(progress, message)
+
+    def _artifact_prefix(self, document: Document) -> str:
+        filename = Path(document.metadata["filename"]).stem
+        safe_name = re.sub(r"[^A-Za-z0-9._-]+", "_", filename).strip("._") or "document"
+        return f"{document.metadata['document_id']}_{safe_name}"
+
+    def _save_processed_artifacts(self, document: Document) -> None:
+        self.config.processed_docs_dir.mkdir(parents=True, exist_ok=True)
+        prefix = self._artifact_prefix(document)
+        markdown_path = self.config.processed_docs_dir / f"{prefix}.structured.md"
+        blocks_path = self.config.processed_docs_dir / f"{prefix}.blocks.json"
+        blocks = document.metadata.get("structured_blocks") or []
+
+        markdown_path.write_text(document.text, encoding="utf-8")
+        blocks_payload = {
+            "document_id": document.metadata["document_id"],
+            "filename": document.metadata["filename"],
+            "version_hash": document.metadata["version_hash"],
+            "blocks": [asdict(block) for block in blocks],
+        }
+        blocks_path.write_text(json.dumps(blocks_payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    def _delete_processed_artifacts(self, document_id: str) -> None:
+        if not self.config.processed_docs_dir.exists():
+            return
+        for path in self.config.processed_docs_dir.glob(f"{document_id}_*"):
+            if path.is_file():
+                path.unlink()
+
+    def _clear_processed_artifacts(self) -> None:
+        if not self.config.processed_docs_dir.exists():
+            return
+        for path in self.config.processed_docs_dir.glob("*"):
+            if path.is_file():
+                path.unlink()

@@ -38,11 +38,60 @@ This section summarizes the findings.
     assert table_chunks[0].metadata["table_id"] == "3"
 
 
+def test_split_preserves_figure_caption_metadata():
+    content = """# Results
+
+Figure 2. Employment effects over time.
+"""
+    doc = load_file("demo.md", content.encode("utf-8"))
+    chunks = split_into_chunks(doc, chunk_size=300, chunk_overlap=20)
+    figure_chunks = [chunk for chunk in chunks if chunk.metadata.get("content_type") == "figure_caption"]
+    assert figure_chunks
+    assert figure_chunks[0].metadata["section"] == "Results"
+    assert figure_chunks[0].metadata["figure_id"] == "2"
+
+
+def test_abstract_stops_before_keyword_following_intro_text():
+    content = """# Abstract
+
+The paper studies minimum wages.
+Keywords Minimum wage.
+JEL Codes J31
+The minimum wage is a common policy in developed and developing countries.
+"""
+    doc = load_file("demo.md", content.encode("utf-8"))
+    chunks = split_into_chunks(doc, chunk_size=300, chunk_overlap=20)
+    abstract_chunks = [chunk for chunk in chunks if chunk.metadata.get("section") == "Abstract"]
+    introduction_chunks = [chunk for chunk in chunks if chunk.metadata.get("section") == "Introduction"]
+    assert abstract_chunks
+    assert introduction_chunks
+    assert "common policy" not in abstract_chunks[0].text
+    assert "common policy" in introduction_chunks[0].text
+
+
 def test_metadata_boost_prioritizes_matching_table():
     features = VectorStore._query_features("What does Table 3 report?")
     exact_table = {"content_type": "table", "table_id": "3", "section": "Results"}
     plain_text = {"content_type": "text", "section": "Results"}
     assert VectorStore._metadata_boost(features, exact_table) > VectorStore._metadata_boost(features, plain_text)
+
+
+def test_metadata_boost_prioritizes_matching_figure():
+    features = VectorStore._query_features("What does Figure 2 show?")
+    exact_figure = {"content_type": "figure_caption", "figure_id": "2", "section": "Results"}
+    plain_text = {"content_type": "text", "section": "Results"}
+    assert VectorStore._metadata_boost(features, exact_figure) > VectorStore._metadata_boost(features, plain_text)
+
+
+def test_metadata_boost_prioritizes_named_section():
+    features = VectorStore._query_features("What is the abstract?")
+    abstract_text = {"content_type": "text", "section": "Abstract"}
+    introduction_text = {"content_type": "text", "section": "Introduction"}
+    assert features["section_name"] == "Abstract"
+    assert VectorStore._metadata_boost(features, abstract_text) > VectorStore._metadata_boost(
+        features,
+        introduction_text,
+    )
 
 
 def test_json_registry_round_trip(tmp_path: Path):

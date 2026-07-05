@@ -108,11 +108,16 @@ if question:
                     label_parts.append(f"section: {metadata['section']}")
                 if metadata.get("content_type"):
                     label_parts.append(f"type: {metadata['content_type']}")
+                if metadata.get("table_id"):
+                    label_parts.append(f"table: {metadata['table_id']}")
+                if metadata.get("figure_id"):
+                    label_parts.append(f"figure: {metadata['figure_id']}")
                 st.markdown(f"**[S{index}] {'; '.join(label_parts)}**")
                 st.caption(
                     f"Score: {context['score']} "
                     f"(similarity {context.get('base_score', context['score'])}, "
-                    f"metadata boost {context.get('metadata_boost', 0.0)})"
+                    f"metadata boost {context.get('metadata_boost', 0.0)}, "
+                    f"match {context.get('match_type', 'vector')})"
                 )
                 st.write(context["text"][:1200])
 
