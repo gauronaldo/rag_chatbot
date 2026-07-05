@@ -42,8 +42,8 @@ Create a virtual environment and install dependencies:
 
 ```powershell
 py -3.12 -m venv .venv
-.\.venv\Scripts\python -m pip install --upgrade pip
-.\.venv\Scripts\pip install -r requirements.txt
+.\venv\Scripts\Activate.ps1
+pip install -r requirements.txt
 ```
 
 Start Ollama if it is not already running:
@@ -55,7 +55,7 @@ ollama serve
 Run the app:
 
 ```powershell
-.\.venv\Scripts\streamlit run streamlit_app.py
+streamlit run streamlit_app.py
 ```
 
 Open the URL printed by Streamlit, usually `http://localhost:8501`.
@@ -92,6 +92,10 @@ compatible.
 The MVP includes custom evaluation metrics in `rag_mvp/evaluation.py`:
 
 - False refusal rate
+- Refusal precision
+- Correct refusal behavior
+- Evidence hit rate
+- MRR
 - Citation accuracy
 - Citation strict accuracy
 - Unsupported claim accuracy
@@ -103,6 +107,9 @@ The RAGAS core runner targets:
 - Answer Relevancy
 - Context Precision
 - Context Recall
+
+RAGAS uses the local Ollama judge configured by `OLLAMA_MODEL`, defaulting to `qwen2.5:7b`, and local
+`BAAI/bge-m3` embeddings. It does not require `OPENAI_API_KEY`.
 
 A sample evaluation file is available at `evaluation/sample_eval_set.csv`. Results are saved to
 `reports/rag_mvp_eval_results.csv`.
@@ -120,6 +127,15 @@ Run all three w18347 splits in one command:
 python -m rag_mvp.run_evaluation --w18347-all
 ```
 
+Test only the RAGAS evaluator on the dev split, reusing an existing custom results CSV:
+
+```powershell
+python -m rag_mvp.run_evaluation --dataset evaluation\w18347_dev_eval.csv --output reports\w18347_dev_eval_results.csv --ragas-only --ragas-raise-exceptions --ragas-num-ctx 8192
+```
+
+For local Ollama judges, RAGAS defaults to `--ragas-max-workers 1`, `--ragas-batch-size 1`,
+`--ragas-timeout 600`, and `--ragas-answer-strictness 1` to avoid overloading the model during scoring.
+
 Run multiple custom datasets in one command:
 
 ```powershell
@@ -135,6 +151,10 @@ reports/<dataset_stem>_summary.md
 ```
 
 When running multiple datasets, the script also writes `reports/evaluation_summary.md`.
+
+Each Markdown summary reports metrics by RAG stage, valid counts, NaN counts, and a strict average where NaN is counted
+as 0. Answerable rows are separated from refusal/not-supported rows because RAGAS factual QA metrics do not directly
+measure correct refusal behavior.
 
 For quick debugging without RAGAS, use `--skip-ragas`; final evaluation should not skip it because Faithfulness,
 Context Recall, Context Precision, and Answer Relevancy are core metrics.

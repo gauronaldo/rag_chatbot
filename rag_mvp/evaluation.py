@@ -21,6 +21,16 @@ REFUSAL_PATTERNS = (
     "khong co thong tin",
     "i don't know",
     "not enough information",
+    "answer was not found",
+    "not found in the provided context",
+    "not found in the context",
+    "provided context does not contain",
+    "context does not contain",
+    "does not provide",
+    "cannot provide",
+    "cannot determine",
+    "does not explicitly state",
+    "not explicitly state",
 )
 
 
@@ -72,6 +82,20 @@ def refusal(answer: str) -> int:
     return int(is_refusal(answer))
 
 
+def refusal_precision(answer: str, expected_behavior: str) -> float | None:
+    if not is_refusal(answer):
+        return None
+    return float(expected_behavior in {"refuse", "state_not_supported"})
+
+
+def correct_refusal_behavior(answer: str, expected_behavior: str) -> float | None:
+    if expected_behavior == "refuse":
+        return float(is_refusal(answer))
+    if expected_behavior == "state_not_supported":
+        return float(is_not_supported(answer))
+    return None
+
+
 def expected_behavior_accuracy(answer: str, expected_behavior: str) -> float:
     if expected_behavior == "refuse":
         return float(is_refusal(answer) or "not found" in answer.lower())
@@ -118,6 +142,24 @@ def unsupported_claim_accuracy(answer: str, contexts: list[str]) -> float:
     return supported / len(claims)
 
 
+def evidence_hit_rate(contexts: list[str], ground_truth: str) -> float:
+    key_terms = _keywords(ground_truth)
+    if not key_terms:
+        return 0.0
+    normalized_contexts = [ctx.lower() for ctx in contexts]
+    return float(any(any(term in context for term in key_terms) for context in normalized_contexts))
+
+
+def evidence_mrr(contexts: list[str], ground_truth: str) -> float:
+    key_terms = _keywords(ground_truth)
+    if not key_terms:
+        return 0.0
+    for rank, context in enumerate((ctx.lower() for ctx in contexts), start=1):
+        if any(term in context for term in key_terms):
+            return 1 / rank
+    return 0.0
+
+
 def evaluate_custom(row: EvaluationRow) -> dict[str, float]:
     citations = extract_citations(row.answer)
     citation_required = str(row.required_citation).strip().lower() != "no"
@@ -131,7 +173,11 @@ def evaluate_custom(row: EvaluationRow) -> dict[str, float]:
     return {
         "false_refusal": false_refusal(row.answer, row.ground_truth, row.expected_behavior),
         "refusal": refusal(row.answer),
+        "refusal_precision": refusal_precision(row.answer, row.expected_behavior),
+        "correct_refusal_behavior": correct_refusal_behavior(row.answer, row.expected_behavior),
         "expected_behavior_accuracy": expected_behavior_accuracy(row.answer, row.expected_behavior),
+        "evidence_hit_rate": evidence_hit_rate(row.contexts, row.ground_truth),
+        "mrr": evidence_mrr(row.contexts, row.ground_truth),
         "citation_accuracy": citation_score,
         "citation_strict_accuracy": strict_citation_score,
         "unsupported_claim_accuracy": unsupported_score,
@@ -184,41 +230,122 @@ def run_local_evaluation(
     return frame
 
 
-def run_ragas_core_evaluation(local_results_path: Path, output_path: Path) -> pd.DataFrame:
+def run_ragas_core_evaluation(
+    local_results_path: Path,
+    output_path: Path,
+    *,
+    ollama_base_url: str,
+    ollama_model: str,
+    embedding_model: str,
+    temperature: float,
+    num_ctx: int | None = None,
+    raise_exceptions: bool = False,
+    timeout: int = 600,
+    max_workers: int = 1,
+    max_retries: int = 1,
+    batch_size: int = 1,
+    answer_relevancy_strictness: int = 1,
+) -> pd.DataFrame:
     """Run RAGAS core metrics from previously generated local evaluation rows."""
     from datasets import Dataset
     from ragas import evaluate
+    from ragas.run_config import RunConfig
 
-    try:
-        from ragas.metrics import answer_relevancy, context_precision, context_recall, faithfulness
+    llm, embeddings = _build_ragas_runtime(
+        ollama_base_url=ollama_base_url,
+        ollama_model=ollama_model,
+        embedding_model=embedding_model,
+        temperature=temperature,
+        num_ctx=num_ctx,
+    )
 
-        metrics = [faithfulness, answer_relevancy, context_precision, context_recall]
-    except ImportError:
-        from ragas.metrics import Faithfulness, LLMContextPrecisionWithReference, LLMContextRecall, ResponseRelevancy
+    from ragas.metrics import ContextPrecision, ContextRecall, Faithfulness, ResponseRelevancy
 
-        metrics = [
-            Faithfulness(),
-            ResponseRelevancy(),
-            LLMContextPrecisionWithReference(),
-            LLMContextRecall(),
-        ]
+    metrics = [
+        Faithfulness(),
+        ResponseRelevancy(strictness=answer_relevancy_strictness),
+        ContextPrecision(),
+        ContextRecall(),
+    ]
+    run_config = RunConfig(
+        timeout=timeout,
+        max_retries=max_retries,
+        max_wait=10,
+        max_workers=max_workers,
+    )
 
     frame = pd.read_csv(local_results_path)
     contexts = [json.loads(value) if isinstance(value, str) and value else [] for value in frame["contexts"].tolist()]
     dataset = Dataset.from_dict(
         {
-            "question": frame["question"].astype(str).tolist(),
-            "answer": frame["answer"].astype(str).tolist(),
-            "contexts": contexts,
-            "ground_truth": frame["ground_truth"].astype(str).tolist(),
+            "user_input": frame["question"].astype(str).tolist(),
+            "response": frame["answer"].astype(str).tolist(),
+            "retrieved_contexts": contexts,
             "reference": frame["ground_truth"].astype(str).tolist(),
         }
     )
-    result = evaluate(dataset, metrics=metrics)
+    result = evaluate(
+        dataset,
+        metrics=metrics,
+        llm=llm,
+        embeddings=embeddings,
+        run_config=run_config,
+        show_progress=True,
+        batch_size=batch_size,
+        raise_exceptions=raise_exceptions,
+    )
     result_frame = result.to_pandas()
     output_path.parent.mkdir(parents=True, exist_ok=True)
     result_frame.to_csv(output_path, index=False, encoding="utf-8")
     return result_frame
+
+
+def _build_ragas_runtime(
+    *,
+    ollama_base_url: str,
+    ollama_model: str,
+    embedding_model: str,
+    temperature: float,
+    num_ctx: int | None,
+) -> tuple[Any, Any]:
+    """Create local RAGAS judge and embedding objects so RAGAS never falls back to OpenAI."""
+    try:
+        from langchain_ollama import ChatOllama
+    except ImportError:
+        try:
+            from langchain_community.chat_models import ChatOllama
+        except ImportError as exc:
+            raise RuntimeError(
+                "RAGAS local judging requires an Ollama LangChain integration. "
+                "Install dependencies with `pip install -r requirements.txt`."
+            ) from exc
+
+    try:
+        from langchain_huggingface import HuggingFaceEmbeddings
+    except ImportError:
+        try:
+            from langchain_community.embeddings import HuggingFaceEmbeddings
+        except ImportError as exc:
+            raise RuntimeError(
+                "RAGAS answer relevancy requires a local embedding integration. "
+                "Install dependencies with `pip install -r requirements.txt`."
+            ) from exc
+
+    llm_kwargs: dict[str, Any] = {
+        "base_url": ollama_base_url,
+        "model": ollama_model,
+        "temperature": temperature,
+        "format": "json",
+        "timeout": 240,
+    }
+    if num_ctx:
+        llm_kwargs["num_ctx"] = num_ctx
+    llm = ChatOllama(**llm_kwargs)
+    embeddings = HuggingFaceEmbeddings(
+        model_name=embedding_model,
+        encode_kwargs={"normalize_embeddings": True},
+    )
+    return llm, embeddings
 
 
 def ragas_metrics_available() -> bool:
