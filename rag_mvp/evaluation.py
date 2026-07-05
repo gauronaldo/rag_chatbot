@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -67,6 +68,10 @@ def false_refusal(answer: str, ground_truth: str, expected_behavior: str = "answ
     return int(refused and answerable and answer_expected)
 
 
+def refusal(answer: str) -> int:
+    return int(is_refusal(answer))
+
+
 def expected_behavior_accuracy(answer: str, expected_behavior: str) -> float:
     if expected_behavior == "refuse":
         return float(is_refusal(answer) or "not found" in answer.lower())
@@ -121,27 +126,40 @@ def evaluate_custom(row: EvaluationRow) -> dict[str, float]:
     if not citation_required and not citations:
         citation_score = 1.0
         strict_citation_score = 1.0
+    unsupported_score = unsupported_claim_accuracy(row.answer, row.contexts)
 
     return {
         "false_refusal": false_refusal(row.answer, row.ground_truth, row.expected_behavior),
+        "refusal": refusal(row.answer),
         "expected_behavior_accuracy": expected_behavior_accuracy(row.answer, row.expected_behavior),
         "citation_accuracy": citation_score,
         "citation_strict_accuracy": strict_citation_score,
-        "unsupported_claim_accuracy": unsupported_claim_accuracy(row.answer, row.contexts),
+        "unsupported_claim_accuracy": unsupported_score,
+        "hallucination_rate": 1 - unsupported_score,
         "latency_ms": row.latency_ms,
     }
 
 
-def run_local_evaluation(pipeline: RagPipeline, dataset_path: Path, output_path: Path) -> pd.DataFrame:
+def run_local_evaluation(
+    pipeline: RagPipeline,
+    dataset_path: Path,
+    output_path: Path,
+    progress_callback: Callable[[int, int, str], None] | None = None,
+) -> pd.DataFrame:
     dataset = pd.read_csv(dataset_path)
     rows: list[dict[str, Any]] = []
-    for item in dataset.to_dict(orient="records"):
+    records = dataset.to_dict(orient="records")
+    total = len(records)
+    for index, item in enumerate(records, start=1):
+        question = str(item["question"])
+        if progress_callback:
+            progress_callback(index, total, question)
         started = time.perf_counter()
-        result = pipeline.answer(str(item["question"]))
+        result = pipeline.answer(question)
         latency_ms = result.get("latency_ms") or round((time.perf_counter() - started) * 1000, 2)
         contexts = [ctx["text"] for ctx in result["contexts"]]
         eval_row = EvaluationRow(
-            question=str(item["question"]),
+            question=question,
             ground_truth=str(item.get("ground_truth", "")),
             answer=result["answer"],
             contexts=contexts,

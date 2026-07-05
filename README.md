@@ -13,7 +13,7 @@ the full pipeline from ingestion to retrieval, generation, citation, and evaluat
 - Chroma persistent vector store.
 - JSON document registry for incremental indexing and precise chunk deletion.
 - English-only prompting with source citations like `[S1]`.
-- Evaluation layer with custom MVP metrics and an optional RAGAS core metrics runner.
+- Evaluation layer with RAGAS core metrics plus custom MVP metrics.
 
 ## Architecture
 
@@ -97,7 +97,7 @@ The MVP includes custom evaluation metrics in `rag_mvp/evaluation.py`:
 - Unsupported claim accuracy
 - Latency
 
-The optional RAGAS core runner targets:
+The RAGAS core runner targets:
 
 - Faithfulness
 - Answer Relevancy
@@ -107,26 +107,43 @@ The optional RAGAS core runner targets:
 A sample evaluation file is available at `evaluation/sample_eval_set.csv`. Results are saved to
 `reports/rag_mvp_eval_results.csv`.
 
-Run evaluation after indexing documents:
+Run evaluation after indexing documents. RAGAS core metrics run by default. If your virtual environment is already
+activated, use `python`; otherwise call the venv Python explicitly.
 
 ```powershell
-.\.venv\Scripts\python -m rag_mvp.run_evaluation
+python -m rag_mvp.run_evaluation --dataset evaluation\w18347_holdout_eval.csv
 ```
 
-Use a custom dataset:
+Run all three w18347 splits in one command:
 
 ```powershell
-.\.venv\Scripts\python -m rag_mvp.run_evaluation --dataset evaluation\sample_eval_set.csv
+python -m rag_mvp.run_evaluation --w18347-all
 ```
 
-Run optional RAGAS metrics after the custom metrics:
+Or, if `make` is available:
 
 ```powershell
-.\.venv\Scripts\python -m rag_mvp.run_evaluation --ragas
+make eval-w18347
 ```
 
-Custom metrics run locally. RAGAS core metrics may require an evaluator LLM/embedding setup supported by your installed
-RAGAS version.
+Run multiple custom datasets in one command:
+
+```powershell
+python -m rag_mvp.run_evaluation --datasets evaluation\w18347_dev_eval.csv evaluation\w18347_holdout_eval.csv evaluation\w18347_stress_eval.csv
+```
+
+By default this writes:
+
+```text
+reports/<dataset_stem>_results.csv
+reports/<dataset_stem>_ragas_results.csv
+reports/<dataset_stem>_summary.md
+```
+
+When running multiple datasets, the script also writes `reports/evaluation_summary.md`.
+
+For quick debugging without RAGAS, use `--skip-ragas`; final evaluation should not skip it because Faithfulness,
+Context Recall, Context Precision, and Answer Relevancy are core metrics.
 
 ## JSON Registry
 

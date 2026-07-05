@@ -166,4 +166,3 @@ cython_debug/
 # Runtime artifacts for the Streamlit RAG MVP
 vector_store/rag_mvp/
 vector_store/rag_mvp_registry.json
-reports/

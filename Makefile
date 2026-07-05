@@ -1,4 +1,4 @@
-.PHONY: check install test clean start pull_model tidy
+.PHONY: check install test clean start pull_model tidy eval-w18347 eval-w18347-fast
 
 check:
 	which pip3
@@ -21,6 +21,12 @@ tidy:
 
 test:
 	pytest -q tests/test_rag_mvp.py
+
+eval-w18347:
+	python -m rag_mvp.run_evaluation --w18347-all
+
+eval-w18347-fast:
+	python -m rag_mvp.run_evaluation --w18347-all --skip-ragas
 
 check-formatting:
 	ruff format . --check
