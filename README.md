@@ -22,7 +22,7 @@ The MVP has one local Streamlit entrypoint and a small Python package:
 
 1. Users upload `.md`, `.txt`, or `.pdf` files in Streamlit.
 2. The loader converts documents into structured Markdown internally.
-3. PDF ingestion detects pages, headings/sections, tables, and figure captions where possible.
+3. PDF ingestion uses Docling to produce layout-aware Markdown before local metadata/chunk processing.
 4. The structured Markdown and block metadata are saved under `processed_docs/` for debugging.
 5. The chunker splits by section and keeps tables/figure captions as typed chunks.
 6. `BAAI/bge-m3` embeds chunks and stores them in Chroma with page, section, and content-type metadata.
@@ -58,7 +58,7 @@ ollama serve
 Run the app:
 
 ```powershell
-streamlit run streamlit_app.py
+streamlit run app.py
 ```
 
 Open the URL printed by Streamlit, usually `http://localhost:8501`.
@@ -83,8 +83,8 @@ compatible.
 
 1. Upload `.md`, `.txt`, or `.pdf` files in the sidebar.
 2. The loader decodes text, normalizes Unicode to NFC, and converts content into structured Markdown internally.
-3. PDF ingestion preserves page numbers and detects headings/sections. With `pdfplumber`, detected tables are converted
-   to Markdown tables. Figure captions are detected from extractable text, but chart pixels are not interpreted.
+3. PDF ingestion uses Docling to convert PDF layout into Markdown with richer table/layout structure. Figure captions
+   are detected from extractable text, but chart pixels are not interpreted.
 4. The app saves `processed_docs/<document_id>_<filename>.structured.md` and
    `processed_docs/<document_id>_<filename>.blocks.json` for debugging and portfolio inspection.
 5. The chunker splits text by section and keeps table/figure-caption chunks separate, attaching metadata such as
@@ -208,17 +208,17 @@ are correct but final retrieval is wrong, tune metadata boosting or add rerankin
 ```text
 rag_mvp/
   config.py          Runtime config
-  documents.py       Loading, structured Markdown conversion, section/table/figure-caption chunking
+  documents.py       Docling PDF conversion, structured Markdown handling, section/table/figure-caption chunking
   registry.py        JSON document registry
   vector_store.py    Chroma + BAAI/bge-m3 retrieval with metadata-aware boosting
   ollama_client.py   Local Ollama generation
   pipeline.py        Ingest, retrieve, answer orchestration
   evaluation.py      RAG evaluation helpers
-streamlit_app.py     Streamlit MVP UI
+app.py               Streamlit MVP UI
 evaluation/          Sample evaluation dataset
 processed_docs/      Structured Markdown and block metadata generated during ingestion
 tests/               Unit tests
 requirements.txt     Python dependencies for venv + pip setup
 ```
 
-The MVP entrypoint is `streamlit_app.py`.
+The MVP entrypoint is `app.py`.

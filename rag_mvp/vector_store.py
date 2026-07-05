@@ -58,7 +58,8 @@ class VectorStore:
         section_names = {
             "abstract": "Abstract",
             "introduction": "Introduction",
-            "conclusion": "Conclusion",
+            "conclusion": "Concluding Remarks",
+            "concluding remarks": "Concluding Remarks",
             "references": "References",
             "appendix": "Appendix",
             "data": "Data",

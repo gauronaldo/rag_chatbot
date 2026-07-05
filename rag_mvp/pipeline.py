@@ -8,7 +8,7 @@ from dataclasses import asdict
 from pathlib import Path
 
 from rag_mvp.config import AppConfig
-from rag_mvp.documents import Document, load_file, split_into_chunks
+from rag_mvp.documents import Document, load_file, source_version_hash, split_into_chunks, stable_id
 from rag_mvp.ollama_client import OllamaClient
 from rag_mvp.registry import DocumentRecord, JsonDocumentRegistry
 from rag_mvp.vector_store import VectorStore
@@ -37,6 +37,13 @@ class RagPipeline:
         progress_callback: Callable[[float, str], None] | None = None,
     ) -> DocumentRecord:
         self._progress(progress_callback, 0.05, f"Loading {filename}")
+        doc_id = stable_id(filename)
+        content_version_hash = source_version_hash(filename, content)
+        existing = self.registry.get(doc_id)
+        if existing and existing.version_hash == content_version_hash:
+            self._progress(progress_callback, 1.0, f"{filename} is already indexed")
+            return existing
+
         document = load_file(filename, content)
         self._progress(progress_callback, 0.25, f"Loaded {filename}")
 
