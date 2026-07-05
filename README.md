@@ -120,8 +120,8 @@ The RAGAS core runner targets:
 RAGAS uses the local Ollama judge configured by `OLLAMA_MODEL`, defaulting to `qwen2.5:7b`, and local
 `BAAI/bge-m3` embeddings. It does not require `OPENAI_API_KEY`.
 
-A sample evaluation file is available at `evaluation/sample_eval_set.csv`. Results are saved to
-`reports/rag_mvp_eval_results.csv`.
+A sample evaluation file is available at `evaluation/sample_eval_set.csv`. By default, results are saved to
+`reports/<dataset_stem_without_eval>_results.csv` with a matching Markdown summary.
 
 Run evaluation after indexing documents. RAGAS core metrics run by default. If your virtual environment is already
 activated, use `python`; otherwise call the venv Python explicitly.
@@ -136,10 +136,10 @@ Run all three w18347 splits in one command:
 python -m rag_mvp.run_evaluation --w18347-all
 ```
 
-Test only the RAGAS evaluator on the dev split, reusing an existing custom results CSV:
+Re-run only the RAGAS evaluator on the dev split, reusing an existing results CSV:
 
 ```powershell
-python -m rag_mvp.run_evaluation --dataset evaluation\w18347_dev_eval.csv --output reports\w18347_dev_eval_results.csv --ragas-only --ragas-raise-exceptions --ragas-num-ctx 8192
+python -m rag_mvp.run_evaluation --dataset evaluation\w18347_dev_eval.csv --output reports\w18347_dev_results.csv --ragas-only --ragas-raise-exceptions --ragas-num-ctx 8192
 ```
 
 For local Ollama judges, RAGAS defaults to `--ragas-max-workers 1`, `--ragas-batch-size 1`,
@@ -154,12 +154,12 @@ python -m rag_mvp.run_evaluation --datasets evaluation\w18347_dev_eval.csv evalu
 By default this writes:
 
 ```text
-reports/<dataset_stem>_results.csv
-reports/<dataset_stem>_ragas_results.csv
-reports/<dataset_stem>_summary.md
+reports/<dataset_stem_without_eval>_results.csv
+reports/<dataset_stem_without_eval>_summary.md
 ```
 
-When running multiple datasets, the script also writes `reports/evaluation_summary.md`.
+The result CSV is a merged row-level file: custom metrics and RAGAS core metrics are stored together. When running
+multiple datasets, the script also writes `reports/evaluation_summary.md`.
 
 Each Markdown summary reports metrics by RAG stage, valid counts, NaN counts, and a strict average where NaN is counted
 as 0. Answerable rows are separated from refusal/not-supported rows because RAGAS factual QA metrics do not directly

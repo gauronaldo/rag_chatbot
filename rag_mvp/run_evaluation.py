@@ -93,7 +93,10 @@ def parse_args() -> argparse.Namespace:
         "--ragas-output",
         type=Path,
         default=None,
-        help="Path for RAGAS core metric results. Defaults to reports/<dataset_stem>_ragas_results.csv.",
+        help=(
+            "Deprecated. RAGAS metrics are merged into --output so each dataset produces one result CSV. "
+            "This path is ignored."
+        ),
     )
     parser.add_argument(
         "--summary-output",
@@ -189,15 +192,19 @@ def resolve_datasets(args: argparse.Namespace) -> list[Path]:
     return [args.dataset]
 
 
-def resolve_output_paths(args: argparse.Namespace, dataset_path: Path, multiple: bool) -> tuple[Path, Path, Path]:
+def resolve_output_paths(args: argparse.Namespace, dataset_path: Path, multiple: bool) -> tuple[Path, Path]:
     config = get_config()
-    if multiple and (args.output or args.ragas_output or args.summary_output):
-        raise ValueError("--output, --ragas-output, and --summary-output can only be used with a single dataset.")
-    dataset_stem = dataset_path.stem
+    if multiple and (args.output or args.summary_output):
+        raise ValueError("--output and --summary-output can only be used with a single dataset.")
+    dataset_stem = _report_stem(dataset_path)
     output = args.output or config.reports_dir / f"{dataset_stem}_results.csv"
-    ragas_output = args.ragas_output or config.reports_dir / f"{dataset_stem}_ragas_results.csv"
     summary_output = args.summary_output or config.reports_dir / f"{dataset_stem}_summary.md"
-    return output, ragas_output, summary_output
+    return output, summary_output
+
+
+def _report_stem(dataset_path: Path) -> str:
+    stem = dataset_path.stem
+    return stem[:-5] if stem.endswith("_eval") else stem
 
 
 def main() -> None:
@@ -211,12 +218,11 @@ def main() -> None:
     summaries = []
 
     for dataset_path in dataset_paths:
-        output_path, ragas_output_path, summary_output_path = resolve_output_paths(args, dataset_path, multiple)
+        output_path, summary_output_path = resolve_output_paths(args, dataset_path, multiple)
         summary = run_one_dataset(
             pipeline=pipeline,
             dataset_path=dataset_path,
             output_path=output_path,
-            ragas_output_path=ragas_output_path,
             summary_output_path=summary_output_path,
             run_ragas=not args.skip_ragas,
             ragas_only=args.ragas_only,
@@ -241,7 +247,6 @@ def run_one_dataset(
     pipeline: RagPipeline | None,
     dataset_path: Path,
     output_path: Path,
-    ragas_output_path: Path,
     summary_output_path: Path,
     run_ragas: bool,
     ragas_only: bool = False,
@@ -256,7 +261,7 @@ def run_one_dataset(
     ragas_answer_strictness: int = 1,
 ) -> dict[str, Path]:
     print(f"\n=== Evaluating {dataset_path} ===", flush=True)
-    print(f"Custom metrics output: {output_path}", flush=True)
+    print(f"Result output: {output_path}", flush=True)
 
     def report_progress(index: int, total: int, question: str) -> None:
         print(f"[custom {index}/{total}] {question}", flush=True)
@@ -290,7 +295,6 @@ def run_one_dataset(
         ]
         print(frame[[column for column in display_columns if column in frame.columns]].to_string(index=False))
 
-    ragas_results_path = None
     if run_ragas:
         if not ragas_metrics_available():
             raise RuntimeError("RAGAS is required for core metrics but is not installed in this environment.")
@@ -305,7 +309,8 @@ def run_one_dataset(
             flush=True,
         )
         print(f"[ragas] Embeddings: {config.embedding_model}", flush=True)
-        print(f"RAGAS metrics output: {ragas_output_path}", flush=True)
+        ragas_output_path = _temporary_ragas_output_path(output_path)
+        print("[ragas] Metrics will be merged into the result CSV.", flush=True)
         ragas_frame = run_ragas_core_evaluation(
             output_path,
             ragas_output_path,
@@ -321,35 +326,54 @@ def run_one_dataset(
             batch_size=ragas_batch_size,
             answer_relevancy_strictness=ragas_answer_strictness,
         )
-        ragas_results_path = ragas_output_path
-        print(f"Saved RAGAS results to {ragas_output_path}")
+        _merge_ragas_metrics(output_path, ragas_frame)
+        _delete_temporary_file(ragas_output_path)
+        print(f"Merged RAGAS metrics into {output_path}")
         print(ragas_frame.to_string(index=False))
 
-    write_markdown_summary(dataset_path, output_path, ragas_results_path, summary_output_path)
+    write_markdown_summary(dataset_path, output_path, summary_output_path)
     print(f"Saved metric summary to {summary_output_path}")
     return {
         "dataset": dataset_path,
-        "custom_results": output_path,
-        "ragas_results": ragas_results_path,
+        "results": output_path,
         "summary": summary_output_path,
     }
 
 
+def _temporary_ragas_output_path(output_path: Path) -> Path:
+    return output_path.with_name(f".{output_path.stem}_ragas_tmp.csv")
+
+
+def _merge_ragas_metrics(output_path: Path, ragas_frame: pd.DataFrame) -> None:
+    frame = pd.read_csv(output_path)
+    normalized_existing = {column.lower(): column for column in frame.columns}
+    for column in ragas_frame.columns:
+        if column.lower() in {"user_input", "response", "retrieved_contexts", "reference"}:
+            continue
+        existing_column = normalized_existing.get(column.lower())
+        target_column = existing_column or column
+        frame[target_column] = ragas_frame[column].values
+    frame.to_csv(output_path, index=False, encoding="utf-8")
+
+
+def _delete_temporary_file(path: Path) -> None:
+    if path.exists():
+        path.unlink()
+
+
 def write_markdown_summary(
     dataset_path: Path,
-    custom_results_path: Path,
-    ragas_results_path: Path | None,
+    results_path: Path,
     summary_output_path: Path,
 ) -> None:
-    custom_frame = pd.read_csv(custom_results_path)
+    custom_frame = pd.read_csv(results_path)
     custom_frame = _ensure_derived_custom_metrics(custom_frame)
-    ragas_frame = pd.read_csv(ragas_results_path) if ragas_results_path and ragas_results_path.exists() else None
+    ragas_frame = custom_frame
     lines = [
         "# RAG Evaluation Summary",
         "",
         f"- Dataset: `{dataset_path}`",
-        f"- Custom results: `{custom_results_path}`",
-        f"- RAGAS results: `{ragas_results_path}`" if ragas_results_path else "- RAGAS results: not run",
+        f"- Results: `{results_path}`",
         f"- Questions: {len(custom_frame)}",
         "",
         "## Core Metrics",
@@ -432,39 +456,34 @@ def write_combined_summary(summaries: list[dict[str, Path]], output_path: Path) 
     lines = [
         "# Combined RAG Evaluation Summary",
         "",
-        "| Dataset | Summary | Custom Results | RAGAS Results |",
-        "|---|---|---|---|",
+        "| Dataset | Questions | Results | Summary | Faithfulness | Context Recall | Context Precision | "
+        "Answer Relevancy | Latency | Refusal Rate | Hallucination Rate |",
+        "|---|---:|---|---|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for summary in summaries:
         dataset = summary["dataset"]
         single_summary = summary["summary"]
-        custom_results = summary["custom_results"]
-        ragas_results = summary["ragas_results"]
+        results = summary["results"]
+        frame = _ensure_derived_custom_metrics(pd.read_csv(results))
         lines.append(
-            f"| `{dataset}` | `{single_summary}` | `{custom_results}` | "
-            f"`{ragas_results}` |"
+            f"| `{dataset}` | {len(frame)} | `{results}` | `{single_summary}` | "
+            f"{_format_metric(_metric_stats(frame, CORE_RAGAS_METRICS['Faithfulness'])['mean'])} | "
+            f"{_format_metric(_metric_stats(frame, CORE_RAGAS_METRICS['Context Recall'])['mean'])} | "
+            f"{_format_metric(_metric_stats(frame, CORE_RAGAS_METRICS['Context Precision'])['mean'])} | "
+            f"{_format_metric(_metric_stats(frame, CORE_RAGAS_METRICS['Answer Relevancy'])['mean'])} | "
+            f"{_format_metric(_metric_stats(frame, ('latency_ms',))['mean'])} | "
+            f"{_format_metric(_metric_stats(frame, ('refusal',))['mean'])} | "
+            f"{_format_metric(_metric_stats(frame, ('hallucination_rate',))['mean'])} |"
         )
 
     lines.extend(
         [
             "",
-            "## Core Metrics",
+            "## Output Contract",
             "",
-            "Each split summary includes these core metrics:",
-            "",
-            "- Faithfulness: RAGAS",
-            "- Context Recall: RAGAS",
-            "- Context Precision: RAGAS",
-            "- Answer Relevancy: RAGAS",
-            "- Evidence Hit Rate: custom",
-            "- MRR: custom",
-            "- Latency: custom",
-            "- Refusal Rate: custom",
-            "- False Refusal Rate: custom",
-            "- Refusal Precision: custom",
-            "- Correct Refusal Behavior: custom",
-            "- Hallucination Rate: custom",
-            "- Each split summary reports NaN counts and strict averages where NaN is counted as 0.",
+            "- Each dataset writes one merged CSV result file and one Markdown summary.",
+            "- RAGAS metrics are merged into the same CSV as custom metrics.",
+            "- This combined summary aggregates the core metric averages across all datasets run in the command.",
             "",
         ]
     )

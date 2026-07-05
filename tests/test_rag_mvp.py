@@ -3,6 +3,7 @@ from pathlib import Path
 from rag_mvp.documents import load_file, preprocess_text, source_version_hash, split_into_chunks
 from rag_mvp.evaluation import citation_accuracy, false_refusal
 from rag_mvp.registry import DocumentRecord, JsonDocumentRegistry
+from rag_mvp.run_evaluation import _report_stem
 from rag_mvp.vector_store import VectorStore
 
 
@@ -180,3 +181,8 @@ def test_custom_evaluation_metrics():
     ground_truth = "There is an answer"
     assert false_refusal(refusal, ground_truth) == 1
     assert citation_accuracy("The answer is here [S1] [S3]", ["ctx1", "ctx2"]) == 0.5
+
+
+def test_report_stem_drops_eval_suffix():
+    assert _report_stem(Path("evaluation/w18347_dev_eval.csv")) == "w18347_dev"
+    assert _report_stem(Path("evaluation/custom.csv")) == "custom"
