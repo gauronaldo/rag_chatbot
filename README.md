@@ -150,8 +150,7 @@ reports/<dataset_stem>_ragas_results.csv
 reports/<dataset_stem>_summary.md
 ```
 
-When running multiple datasets, the script also writes `reports/evaluation_summary.md` and
-`reports/error_analysis.md`.
+When running multiple datasets, the script also writes `reports/evaluation_summary.md`.
 
 Each Markdown summary reports metrics by RAG stage, valid counts, NaN counts, and a strict average where NaN is counted
 as 0. Answerable rows are separated from refusal/not-supported rows because RAGAS factual QA metrics do not directly
@@ -159,23 +158,6 @@ measure correct refusal behavior.
 
 For quick debugging without RAGAS, use `--skip-ragas`; final evaluation should not skip it because Faithfulness,
 Context Recall, Context Precision, and Answer Relevancy are core metrics.
-
-## Evaluation Findings
-
-The current MVP is end-to-end complete, but the evaluation intentionally exposes remaining quality gaps:
-
-- Normal dev and holdout QA have stable RAGAS scores, low hallucination, and strong citation behavior.
-- Stress testing shows strong refusal behavior on true out-of-scope and unsupported questions.
-- The main remaining weakness is false refusal on harder answerable or claim-verification questions.
-- Table, numeric, and exact-detail retrieval are the highest-impact next improvement areas.
-
-The recommended next retrieval upgrade is table-aware ingestion:
-
-- Extract PDF tables separately from narrative text.
-- Store table chunks with metadata such as `page`, `table_number`, `section`, and `caption`.
-- Detect queries that mention table numbers, percentages, welfare, unemployment, wages, or other numeric evidence.
-- Retrieve table chunks and text chunks separately, then merge or rerank the candidates.
-- Add gold evidence labels such as `expected_page`, `expected_section`, or `expected_table` for stronger retrieval metrics.
 
 ## JSON Registry
 

@@ -3,7 +3,6 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-import warnings
 from pathlib import Path
 
 import pandas as pd
@@ -107,12 +106,6 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         default=config.reports_dir / "evaluation_summary.md",
         help="Path for a combined Markdown summary when running multiple datasets.",
-    )
-    parser.add_argument(
-        "--error-analysis-output",
-        type=Path,
-        default=config.reports_dir / "error_analysis.md",
-        help="Path for cross-split error analysis when running multiple datasets.",
     )
     parser.add_argument(
         "--skip-ragas",
@@ -242,8 +235,6 @@ def main() -> None:
     if multiple:
         write_combined_summary(summaries, args.combined_summary_output)
         print(f"Saved combined metric summary to {args.combined_summary_output}")
-        write_error_analysis(summaries, args.error_analysis_output)
-        print(f"Saved error analysis report to {args.error_analysis_output}")
 
 
 def run_one_dataset(
@@ -454,37 +445,6 @@ def write_combined_summary(summaries: list[dict[str, Path]], output_path: Path) 
             f"`{ragas_results}` |"
         )
 
-    combined_frame = _combined_metric_frame(summaries)
-    lines.extend(
-        [
-            "",
-            "## Aggregate Metrics",
-            "",
-            "| Split | Questions | Faithfulness | Context Recall | Context Precision | Answer Relevancy | "
-            "Hallucination Rate | False Refusal Rate | Citation Strict Accuracy | Latency ms | RAGAS NaNs |",
-            "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
-        ]
-    )
-    for _, row in combined_frame.iterrows():
-        lines.append(
-            f"| {row['split']} | {int(row['questions'])} | {_format_metric(row['faithfulness'])} | "
-            f"{_format_metric(row['context_recall'])} | {_format_metric(row['context_precision'])} | "
-            f"{_format_metric(row['answer_relevancy'])} | {_format_metric(row['hallucination_rate'])} | "
-            f"{_format_metric(row['false_refusal'])} | {_format_metric(row['citation_strict_accuracy'])} | "
-            f"{_format_metric(row['latency_ms'])} | {int(row['ragas_nan_count'])} |"
-        )
-
-    overall = _overall_metric_row(combined_frame)
-    lines.extend(
-        [
-            f"| **Overall** | {int(overall['questions'])} | {_format_metric(overall['faithfulness'])} | "
-            f"{_format_metric(overall['context_recall'])} | {_format_metric(overall['context_precision'])} | "
-            f"{_format_metric(overall['answer_relevancy'])} | {_format_metric(overall['hallucination_rate'])} | "
-            f"{_format_metric(overall['false_refusal'])} | {_format_metric(overall['citation_strict_accuracy'])} | "
-            f"{_format_metric(overall['latency_ms'])} | {int(overall['ragas_nan_count'])} |",
-        ]
-    )
-
     lines.extend(
         [
             "",
@@ -510,235 +470,6 @@ def write_combined_summary(summaries: list[dict[str, Path]], output_path: Path) 
     )
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text("\n".join(lines), encoding="utf-8")
-
-
-def write_error_analysis(summaries: list[dict[str, Path]], output_path: Path) -> None:
-    frame = _combined_row_level_frame(summaries)
-    hallucination_rows = int((pd.to_numeric(frame["hallucination_rate"], errors="coerce") > 0).sum())
-    low_context_recall_rows = int((pd.to_numeric(frame["context_recall"], errors="coerce") < 0.5).sum())
-    lines = [
-        "# RAG Error Analysis",
-        "",
-        "This report identifies the rows most useful for improving the RAG system after the dev, holdout, and stress "
-        "evaluations.",
-        "",
-        "## Executive Summary",
-        "",
-        f"- Total evaluated rows: {len(frame)}",
-        f"- False refusals: {int(pd.to_numeric(frame['false_refusal'], errors='coerce').fillna(0).sum())}",
-        f"- Rows with hallucination rate > 0: {hallucination_rows}",
-        f"- Rows with citation strict accuracy < 1: "
-        f"{int((pd.to_numeric(frame['citation_strict_accuracy'], errors='coerce') < 1).sum())}",
-        f"- Rows with context recall < 0.5: {low_context_recall_rows}",
-        "",
-        "## Likely Root Causes",
-        "",
-        "- Table and numeric questions are the clearest remaining retrieval weakness.",
-        "- Claim-verification rows expose false refusals when the system should classify a claim as supported, "
-        "unsupported, or contradicted.",
-        "- Context precision is lower than evidence hit rate, which means the retriever often finds evidence but also "
-        "passes extra irrelevant chunks to the generator.",
-        "- Refusal behavior is strong on true out-of-scope rows, but the policy is too conservative on some answerable "
-        "stress rows.",
-        "",
-    ]
-    sections = [
-        (
-            "False Refusals",
-            frame[pd.to_numeric(frame["false_refusal"], errors="coerce").fillna(0) > 0],
-            ["false_refusal", "refusal", "context_recall", "answer_relevancy"],
-            "Rows where the model refused even though the dataset expected an answer or claim verification.",
-        ),
-        (
-            "Lowest Context Recall",
-            frame.sort_values("context_recall", na_position="first").head(10),
-            ["context_recall", "context_precision", "evidence_hit_rate", "mrr"],
-            "Rows where RAGAS judged the retrieved contexts as missing reference evidence.",
-        ),
-        (
-            "Lowest Context Precision",
-            frame.sort_values("context_precision", na_position="first").head(10),
-            ["context_precision", "context_recall", "evidence_hit_rate", "mrr"],
-            "Rows where retrieved contexts included weak or irrelevant evidence.",
-        ),
-        (
-            "Lowest Faithfulness",
-            frame.sort_values("faithfulness", na_position="first").head(10),
-            ["faithfulness", "hallucination_rate", "citation_strict_accuracy"],
-            "Rows where answer claims were least grounded in retrieved context.",
-        ),
-        (
-            "Citation Alignment Issues",
-            frame[pd.to_numeric(frame["citation_strict_accuracy"], errors="coerce") < 1]
-            .sort_values("citation_strict_accuracy")
-            .head(10),
-            ["citation_strict_accuracy", "citation_accuracy", "context_recall"],
-            "Rows where citations were syntactically valid but did not strongly align with the ground truth.",
-        ),
-        (
-            "Hallucination Candidates",
-            frame[pd.to_numeric(frame["hallucination_rate"], errors="coerce") > 0]
-            .sort_values("hallucination_rate", ascending=False)
-            .head(10),
-            ["hallucination_rate", "faithfulness", "citation_strict_accuracy"],
-            "Rows where the custom unsupported-claim heuristic found unsupported answer claims.",
-        ),
-    ]
-    for title, section_frame, metric_columns, description in sections:
-        lines.extend(_error_section(title, section_frame, metric_columns, description))
-
-    lines.extend(
-        [
-            "",
-            "## Recommended Next Step: Table/Numeric Retrieval",
-            "",
-            "The most portfolio-worthy next improvement is table-aware retrieval:",
-            "",
-            "- Extract PDF tables separately during ingestion.",
-            "- Store table chunks with metadata such as `page`, `table_number`, `section`, and `caption`.",
-            "- Detect table/numeric queries such as `Table 3`, `10 percent`, `welfare`, or `unemployment`.",
-            "- Retrieve normal text and table chunks separately, then merge or rerank the candidates.",
-            "- Add gold evidence labels such as `expected_page`, `expected_section`, or `expected_table` for stronger "
-            "retrieval metrics.",
-            "",
-        ]
-    )
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text("\n".join(lines), encoding="utf-8")
-
-
-def _combined_metric_frame(summaries: list[dict[str, Path]]) -> pd.DataFrame:
-    rows: list[dict[str, object]] = []
-    for summary in summaries:
-        split_name = _split_name(summary["dataset"])
-        custom_frame = _ensure_derived_custom_metrics(pd.read_csv(summary["custom_results"]))
-        ragas_path = summary.get("ragas_results")
-        ragas_frame = pd.read_csv(ragas_path) if ragas_path and Path(ragas_path).exists() else None
-        ragas_nan_count = 0
-        if ragas_frame is not None:
-            for column_names in CORE_RAGAS_METRICS.values():
-                stats = _metric_stats(ragas_frame, column_names)
-                ragas_nan_count += int(stats["nan"] or 0)
-        rows.append(
-            {
-                "split": split_name,
-                "questions": len(custom_frame),
-                "faithfulness": _metric_stats(ragas_frame, ("faithfulness",))["mean"],
-                "context_recall": _metric_stats(ragas_frame, ("context_recall",))["mean"],
-                "context_precision": _metric_stats(ragas_frame, ("context_precision",))["mean"],
-                "answer_relevancy": _metric_stats(
-                    ragas_frame,
-                    ("answer_relevancy", "answer_relevance", "response_relevancy"),
-                )["mean"],
-                "hallucination_rate": _metric_stats(custom_frame, ("hallucination_rate",))["mean"],
-                "false_refusal": _metric_stats(custom_frame, ("false_refusal",))["mean"],
-                "citation_strict_accuracy": _metric_stats(custom_frame, ("citation_strict_accuracy",))["mean"],
-                "latency_ms": _metric_stats(custom_frame, ("latency_ms",))["mean"],
-                "ragas_nan_count": ragas_nan_count,
-            }
-        )
-    return pd.DataFrame(rows)
-
-
-def _overall_metric_row(frame: pd.DataFrame) -> dict[str, object]:
-    total_questions = int(pd.to_numeric(frame["questions"], errors="coerce").fillna(0).sum())
-    row: dict[str, object] = {"split": "Overall", "questions": total_questions}
-    for column in (
-        "faithfulness",
-        "context_recall",
-        "context_precision",
-        "answer_relevancy",
-        "hallucination_rate",
-        "false_refusal",
-        "citation_strict_accuracy",
-        "latency_ms",
-    ):
-        values = pd.to_numeric(frame[column], errors="coerce")
-        weights = pd.to_numeric(frame["questions"], errors="coerce")
-        valid = values.notna() & weights.notna()
-        row[column] = float((values[valid] * weights[valid]).sum() / weights[valid].sum()) if valid.any() else None
-    row["ragas_nan_count"] = int(pd.to_numeric(frame["ragas_nan_count"], errors="coerce").fillna(0).sum())
-    return row
-
-
-def _combined_row_level_frame(summaries: list[dict[str, Path]]) -> pd.DataFrame:
-    frames: list[pd.DataFrame] = []
-    for summary in summaries:
-        custom_frame = _ensure_derived_custom_metrics(pd.read_csv(summary["custom_results"])).reset_index(drop=True)
-        ragas_path = summary.get("ragas_results")
-        if ragas_path and Path(ragas_path).exists():
-            ragas_frame = pd.read_csv(ragas_path).reset_index(drop=True)
-            ragas_columns = [column for column in ragas_frame.columns if column not in custom_frame.columns]
-            frame = pd.concat([custom_frame, ragas_frame[ragas_columns]], axis=1)
-        else:
-            frame = custom_frame
-        frame.insert(0, "split", _split_name(summary["dataset"]))
-        frames.append(frame)
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", FutureWarning)
-        return pd.concat(frames, ignore_index=True)
-
-
-def _error_section(
-    title: str,
-    frame: pd.DataFrame,
-    metric_columns: list[str],
-    description: str,
-) -> list[str]:
-    lines = [
-        f"## {title}",
-        "",
-        description,
-        "",
-    ]
-    if frame.empty:
-        lines.extend(["No rows found for this category.", ""])
-        return lines
-    lines.extend(
-        [
-            "| Split | Type | Question | Metrics | Answer Snippet |",
-            "|---|---|---|---|---|",
-        ]
-    )
-    for _, row in frame.head(10).iterrows():
-        metrics = ", ".join(
-            f"{column}={_format_metric(pd.to_numeric(pd.Series([row.get(column)]), errors='coerce').iloc[0])}"
-            for column in metric_columns
-            if column in row
-        )
-        question = _clean_markdown_cell(str(row.get("question", "")))
-        answer = _clean_markdown_cell(str(row.get("answer", ""))[:220])
-        lines.append(
-            f"| {_clean_markdown_cell(str(row.get('split', '')))} | "
-            f"{_clean_markdown_cell(str(row.get('question_type', row.get('expected_behavior', ''))))} | "
-            f"{question} | {metrics} | {answer} |"
-        )
-    lines.append("")
-    return lines
-
-
-def _split_name(path: Path) -> str:
-    stem = Path(path).stem
-    for marker in ("w18347_", "_eval"):
-        stem = stem.replace(marker, "")
-    return stem
-
-
-def _clean_markdown_cell(value: str) -> str:
-    replacements = {
-        "SÃ£o": "Sao",
-        "SÃ¡o": "Sao",
-        "Î»": "lambda",
-        "Î·": "eta",
-        "â†’": "->",
-        "â€™": "'",
-        "â€œ": '"',
-        "â€": '"',
-    }
-    cleaned = value
-    for source, target in replacements.items():
-        cleaned = cleaned.replace(source, target)
-    return " ".join(cleaned.replace("|", "\\|").replace("\n", " ").split())
 
 
 def _mean_from_first_available_column(frame: pd.DataFrame | None, column_names: tuple[str, ...]) -> float | None:
