@@ -120,12 +120,6 @@ Run all three w18347 splits in one command:
 python -m rag_mvp.run_evaluation --w18347-all
 ```
 
-Or, if `make` is available:
-
-```powershell
-make eval-w18347
-```
-
 Run multiple custom datasets in one command:
 
 ```powershell
