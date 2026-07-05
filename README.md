@@ -20,13 +20,14 @@ the full pipeline from ingestion to retrieval, generation, citation, and evaluat
 The MVP has one local Streamlit entrypoint and a small Python package:
 
 1. Users upload `.md`, `.txt`, or `.pdf` files in Streamlit.
-2. The loader decodes and normalizes text.
-3. The chunker splits documents and preserves source metadata.
-4. `BAAI/bge-m3` embeds chunks and stores them in Chroma.
-5. The JSON registry stores document IDs, version hashes, and chunk IDs.
-6. User questions retrieve top-k chunks from Chroma.
-7. The prompt instructs Ollama/Qwen to answer in English with citations.
-8. The app displays the answer, latency, and retrieved contexts.
+2. The loader converts documents into structured Markdown internally.
+3. PDF ingestion detects pages, headings/sections, and tables where possible.
+4. The chunker splits by section and keeps tables as table-aware chunks.
+5. `BAAI/bge-m3` embeds chunks and stores them in Chroma with page, section, and content-type metadata.
+6. The JSON registry stores document IDs, version hashes, and chunk IDs.
+7. User questions retrieve candidate chunks from Chroma and apply metadata-aware boosting for table/section queries.
+8. The prompt instructs Ollama/Qwen to answer in English with citations.
+9. The app displays the answer, latency, retrieved contexts, and retrieval scores.
 
 ## Setup
 
@@ -42,7 +43,7 @@ Create a virtual environment and install dependencies:
 
 ```powershell
 py -3.12 -m venv .venv
-.\venv\Scripts\Activate.ps1
+.\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
 
@@ -79,13 +80,17 @@ compatible.
 ## How It Works
 
 1. Upload `.md`, `.txt`, or `.pdf` files in the sidebar.
-2. The loader decodes text and normalizes Unicode to NFC.
-3. The chunker splits documents while preserving source metadata.
-4. `BAAI/bge-m3` embeds chunks and stores them in Chroma.
-5. The JSON registry stores document IDs, version hashes, and chunk IDs.
-6. At question time, the app retrieves top-k chunks and builds an English-only RAG prompt.
-7. Ollama runs Qwen locally and returns an answer with citations.
-8. The UI displays the answer, latency, and retrieved contexts.
+2. The loader decodes text, normalizes Unicode to NFC, and converts content into structured Markdown internally.
+3. PDF ingestion preserves page numbers and detects headings/sections. With `pdfplumber`, detected tables are converted
+   to Markdown tables.
+4. The chunker splits text by section and keeps table chunks separate, attaching metadata such as `page`, `section`,
+   `content_type`, and `table_id`.
+5. `BAAI/bge-m3` embeds chunks and stores them in Chroma.
+6. The JSON registry stores document IDs, version hashes, and chunk IDs.
+7. At question time, the app retrieves more candidates than the final `TOP_K`, then boosts table/section candidates
+   when the query mentions table IDs, section IDs, or numeric/table-like terms.
+8. Ollama runs Qwen locally and returns an English-only answer with citations.
+9. The UI displays the answer, latency, retrieved contexts, base similarity, and metadata boost.
 
 ## Evaluation
 
@@ -169,9 +174,9 @@ This keeps setup simple and avoids database services for a local portfolio demo.
 ```text
 rag_mvp/
   config.py          Runtime config
-  documents.py       Loading, decoding, preprocessing, chunking
+  documents.py       Loading, structured Markdown conversion, section/table chunking
   registry.py        JSON document registry
-  vector_store.py    Chroma + BAAI/bge-m3 retrieval
+  vector_store.py    Chroma + BAAI/bge-m3 retrieval with metadata-aware boosting
   ollama_client.py   Local Ollama generation
   pipeline.py        Ingest, retrieve, answer orchestration
   evaluation.py      RAG evaluation helpers

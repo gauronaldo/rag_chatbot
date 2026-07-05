@@ -100,8 +100,20 @@ if question:
         st.caption(f"Latency: {latency_ms} ms")
         with st.expander("Retrieved contexts"):
             for index, context in enumerate(contexts, start=1):
-                st.markdown(f"**[S{index}] {context['metadata'].get('filename', 'unknown')}**")
-                st.caption(f"Similarity: {context['score']}")
+                metadata = context["metadata"]
+                label_parts = [metadata.get("filename", "unknown")]
+                if metadata.get("page"):
+                    label_parts.append(f"page {metadata['page']}")
+                if metadata.get("section"):
+                    label_parts.append(f"section: {metadata['section']}")
+                if metadata.get("content_type"):
+                    label_parts.append(f"type: {metadata['content_type']}")
+                st.markdown(f"**[S{index}] {'; '.join(label_parts)}**")
+                st.caption(
+                    f"Score: {context['score']} "
+                    f"(similarity {context.get('base_score', context['score'])}, "
+                    f"metadata boost {context.get('metadata_boost', 0.0)})"
+                )
                 st.write(context["text"][:1200])
 
     st.session_state.messages.append({"role": "assistant", "content": answer})

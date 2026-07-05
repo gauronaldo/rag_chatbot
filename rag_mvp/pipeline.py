@@ -79,8 +79,19 @@ class RagPipeline:
     def build_prompt(self, question: str, contexts: list[dict]) -> str:
         context_blocks = []
         for index, ctx in enumerate(contexts, start=1):
-            filename = ctx["metadata"].get("filename", "unknown")
-            context_blocks.append(f"[S{index}] {filename}\n{ctx['text']}")
+            metadata = ctx["metadata"]
+            filename = metadata.get("filename", "unknown")
+            page = metadata.get("page")
+            section = metadata.get("section")
+            content_type = metadata.get("content_type")
+            source_parts = [filename]
+            if page:
+                source_parts.append(f"page {page}")
+            if section:
+                source_parts.append(f"section: {section}")
+            if content_type:
+                source_parts.append(f"type: {content_type}")
+            context_blocks.append(f"[S{index}] {'; '.join(source_parts)}\n{ctx['text']}")
         context_text = "\n\n".join(context_blocks)
         return (
             f"{SYSTEM_PROMPT}\n"
