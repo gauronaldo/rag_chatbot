@@ -167,6 +167,16 @@ def test_query_maps_conclusion_to_concluding_remarks():
     )
 
 
+def test_document_scope_filter_helpers():
+    assert VectorStore._document_where(None) is None
+    assert VectorStore._document_where(["doc-1"]) == {"document_id": "doc-1"}
+    assert VectorStore._document_where(["doc-1", "doc-2"]) == {
+        "document_id": {"$in": ["doc-1", "doc-2"]},
+    }
+    assert VectorStore._metadata_in_scope({"document_id": "doc-1"}, ["doc-1"]) is True
+    assert VectorStore._metadata_in_scope({"document_id": "doc-2"}, ["doc-1"]) is False
+
+
 def test_json_registry_round_trip(tmp_path: Path):
     registry = JsonDocumentRegistry(tmp_path / "registry.json")
     record = DocumentRecord("doc-1", "demo.md", "demo.md", 10, "hash", ["c1", "c2"])

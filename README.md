@@ -7,7 +7,7 @@ store, answers with source citations, and includes an end-to-end evaluation pipe
 
 ## Highlights
 
-- Streamlit app for upload, ingestion progress, chat, and retrieved-source inspection.
+- Streamlit app for upload, ingestion progress, document-scoped chat, and retrieved-source inspection.
 - Local generation through Ollama, defaulting to `qwen2.5:7b`.
 - Local embeddings with `BAAI/bge-m3`.
 - Chroma persistent vector store.
@@ -37,6 +37,7 @@ app.py
   Streamlit UI
   - upload files
   - show ingestion progress
+  - select one indexed document or all documents as the retrieval scope
   - chat with the indexed corpus
   - inspect retrieved contexts and scores
 
@@ -127,27 +128,28 @@ compatible.
 3. The registry skips ingestion if the same file content is already indexed.
 4. PDFs are converted to Markdown with PyMuPDF4LLM.
 5. The loader normalizes text and parses structured blocks.
-6. Structured Markdown and block metadata are saved under `processed_docs/`.
+6. Structured Markdown and block metadata are saved under `processed_docs/` as local debug artifacts.
 7. The chunker splits by section and separates table / figure-caption chunks where possible.
 8. Each chunk receives metadata such as filename, page, section, content type, table ID, and figure ID.
 9. Chunks are embedded with `BAAI/bge-m3`.
 10. Chunks and metadata are stored in Chroma.
 11. The JSON registry stores document IDs, version hashes, and Chroma chunk IDs.
 
-The saved `processed_docs/` files are intentionally useful for debugging and portfolio inspection. If an answer is
-wrong, check whether the target fact exists in the structured Markdown first, then check block metadata and retrieval.
+The saved `processed_docs/` files are intentionally useful during local debugging, but they are ignored by git because
+they are generated from source documents and can be rebuilt by re-ingesting.
 
 ## Retrieval And Answering Flow
 
 1. The user asks a question in the Streamlit chat.
 2. The question is embedded with the same embedding model.
 3. Chroma retrieves candidate chunks.
-4. Metadata-aware boosting promotes candidates that match explicit section, table, figure, numeric, or content-type
+4. If a document is selected in the sidebar, retrieval is filtered to that document ID.
+5. Metadata-aware boosting promotes candidates that match explicit section, table, figure, numeric, or content-type
 signals in the question.
-5. The final contexts are inserted into a grounded prompt.
-6. Ollama/Qwen answers using only the provided contexts.
-7. The answer is returned in English with citations.
-8. The UI shows latency and the retrieved contexts, including similarity score and metadata boost.
+6. The final contexts are inserted into a grounded prompt.
+7. Ollama/Qwen answers using only the provided contexts.
+8. The answer is returned in English with citations.
+9. The UI shows latency and the retrieved contexts, including similarity score and metadata boost.
 
 The prompt is intentionally conservative: if the retrieved context is insufficient, the model should say that the answer
 was not found in the context.
@@ -265,6 +267,23 @@ Interpretation:
 - The main current weakness is false refusal on detailed table, definition, and numeric questions.
 - Table/numeric retrieval and reranking are natural next improvements.
 
+## Engineering Tradeoffs And Known Limitations
+
+This MVP intentionally favors a transparent local architecture over a heavier production stack.
+
+- **Local-first runtime:** Ollama, Chroma, JSON registry, and local embeddings keep the project easy to run without
+  hosted services. The tradeoff is slower latency than managed inference and less robust evaluator reliability than a
+  stronger hosted judge.
+- **Conservative prompting:** The assistant is instructed to answer only from retrieved context. This keeps hallucination
+  low, but can produce false refusals when retrieval misses a specific table, definition, or numeric fact.
+- **Lightweight PDF parsing:** PyMuPDF4LLM is fast and simple for text-first papers. It does not interpret chart pixels
+  or image-only figure content; figure support is caption-aware rather than vision-based.
+- **Simple retrieval stack:** Dense retrieval plus metadata-aware boosting is explainable and portfolio-friendly. The
+  current weakness is detailed table/numeric retrieval; a production version would add table row normalization, adjacent
+  chunk expansion, and a reranker.
+- **Evaluation scope:** The benchmark reports are for `w18347.pdf`. Multi-document chat is supported in the app, but the
+  formal metrics should be read as single-document benchmark evidence.
+
 ## Retrieval Debugging
 
 Use the diagnostic CLI when the answer is wrong but the information appears in `processed_docs/`:
@@ -291,17 +310,17 @@ Ignored local runtime state:
 ```text
 vector_store/rag_mvp/
 vector_store/rag_mvp_registry.json
+processed_docs/
 .env
 .venv/
 ```
 
-Tracked portfolio/debug artifacts:
+Tracked portfolio artifacts:
 
 ```text
-processed_docs/
 reports/
 evaluation/
 ```
 
-This means another user can inspect the processed Markdown and evaluation reports, while still rebuilding the local
-vector store on their machine by ingesting `w18347.pdf`.
+This means another user can inspect the evaluation datasets and reports, while rebuilding local processed documents and
+the vector store on their machine by ingesting `w18347.pdf`.

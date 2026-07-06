@@ -124,37 +124,75 @@ class VectorStore:
             boost += 0.2
         return boost
 
-    def _metadata_candidates(self, query_features: dict, top_k: int) -> list[dict]:
-        where = None
-        if query_features["section_name"]:
-            where = {"section": query_features["section_name"]}
-        elif query_features["table_id"]:
-            where = {"table_id": query_features["table_id"]}
-        elif query_features["figure_id"]:
-            where = {"figure_id": query_features["figure_id"]}
-        if where is None:
+    @staticmethod
+    def _document_where(document_ids: list[str] | None) -> dict | None:
+        if not document_ids:
+            return None
+        if len(document_ids) == 1:
+            return {"document_id": document_ids[0]}
+        return {"document_id": {"$in": document_ids}}
+
+    @staticmethod
+    def _metadata_in_scope(metadata: dict, document_ids: list[str] | None) -> bool:
+        return not document_ids or metadata.get("document_id") in document_ids
+
+    def _scope_count(self, document_ids: list[str] | None) -> int:
+        document_where = self._document_where(document_ids)
+        if not document_where:
+            return self.collection.count()
+        return len(self.collection.get(where=document_where).get("ids", []))
+
+    @staticmethod
+    def _metadata_matches_features(query_features: dict, metadata: dict) -> bool:
+        section = VectorStore._normalize_metadata_text(metadata.get("section", ""))
+        table_id = str(metadata.get("table_id", "")).lower()
+        figure_id = str(metadata.get("figure_id", "")).lower()
+        if query_features["section_name"] and section == VectorStore._normalize_metadata_text(
+            query_features["section_name"],
+        ):
+            return True
+        if query_features["table_id"] and query_features["table_id"] == table_id:
+            return True
+        if query_features["figure_id"] and query_features["figure_id"] == figure_id:
+            return True
+        return False
+
+    def _metadata_candidates(
+        self,
+        query_features: dict,
+        top_k: int,
+        document_ids: list[str] | None = None,
+    ) -> list[dict]:
+        has_metadata_hint = bool(
+            query_features["section_name"] or query_features["table_id"] or query_features["figure_id"],
+        )
+        if not has_metadata_hint:
             return []
 
-        result = self.collection.get(where=where, limit=top_k)
-        if query_features["section_name"] and not result.get("ids"):
-            all_items = self.collection.get()
-            expected_section = self._normalize_metadata_text(query_features["section_name"])
-            documents = []
-            metadatas = []
-            ids = []
-            for doc, metadata, chunk_id in zip(
-                all_items.get("documents", []),
-                all_items.get("metadatas", []),
-                all_items.get("ids", []),
-            ):
-                metadata = metadata or {}
-                if self._normalize_metadata_text(metadata.get("section")) == expected_section:
-                    documents.append(doc)
-                    metadatas.append(metadata)
-                    ids.append(chunk_id)
-                if len(ids) >= top_k:
-                    break
-            result = {"documents": documents, "metadatas": metadatas, "ids": ids}
+        get_kwargs = {}
+        document_where = self._document_where(document_ids)
+        if document_where:
+            get_kwargs["where"] = document_where
+        all_items = self.collection.get(**get_kwargs)
+        documents = []
+        metadatas = []
+        ids = []
+        for doc, metadata, chunk_id in zip(
+            all_items.get("documents", []),
+            all_items.get("metadatas", []),
+            all_items.get("ids", []),
+        ):
+            metadata = metadata or {}
+            if not self._metadata_in_scope(metadata, document_ids):
+                continue
+            if self._metadata_matches_features(query_features, metadata):
+                documents.append(doc)
+                metadatas.append(metadata)
+                ids.append(chunk_id)
+            if len(ids) >= top_k:
+                break
+        result = {"documents": documents, "metadatas": metadatas, "ids": ids}
+
         rows: list[dict] = []
         for doc, metadata, chunk_id in zip(
             result.get("documents", []),
@@ -176,18 +214,23 @@ class VectorStore:
             )
         return rows
 
-    def search(self, query: str, top_k: int) -> list[dict]:
-        if self.collection.count() == 0:
+    def search(self, query: str, top_k: int, document_ids: list[str] | None = None) -> list[dict]:
+        scope_count = self._scope_count(document_ids)
+        if scope_count == 0:
             return []
         query_embedding = self.embedder.encode(query, normalize_embeddings=True, show_progress_bar=False).tolist()
-        candidate_count = min(max(top_k * 10, 50), self.collection.count())
-        result = self.collection.query(
-            query_embeddings=[query_embedding],
-            n_results=candidate_count,
-        )
+        candidate_count = min(max(top_k * 10, 50), scope_count)
+        query_kwargs = {
+            "query_embeddings": [query_embedding],
+            "n_results": candidate_count,
+        }
+        document_where = self._document_where(document_ids)
+        if document_where:
+            query_kwargs["where"] = document_where
+        result = self.collection.query(**query_kwargs)
         rows: list[dict] = []
         query_features = self._query_features(query)
-        rows.extend(self._metadata_candidates(query_features, top_k))
+        rows.extend(self._metadata_candidates(query_features, top_k, document_ids))
         for doc, metadata, distance, chunk_id in zip(
             result["documents"][0],
             result["metadatas"][0],
