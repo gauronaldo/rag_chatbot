@@ -8,13 +8,13 @@
 
 | Metric | Source | Average | Strict Average | Valid / Total | NaN Count |
 |---|---|---:|---:|---:|---:|
-| Faithfulness | RAGAS | 0.5766 | 0.5766 | 50 / 50 | 0 |
-| Context Recall | RAGAS | 0.0300 | 0.0300 | 50 / 50 | 0 |
-| Context Precision | RAGAS | 0.0050 | 0.0050 | 50 / 50 | 0 |
-| Answer Relevancy | RAGAS | 0.2687 | 0.2687 | 50 / 50 | 0 |
-| Latency | Custom | 4165.9864 | 4165.9864 | 50 / 50 | 0 |
-| Refusal Rate | Custom | 0.6400 | 0.6400 | 50 / 50 | 0 |
-| Hallucination Rate | Custom | 0.2470 | 0.2470 | 50 / 50 | 0 |
+| Faithfulness | RAGAS | 0.8682 | 0.8682 | 50 / 50 | 0 |
+| Context Recall | RAGAS | 0.6017 | 0.6017 | 50 / 50 | 0 |
+| Context Precision | RAGAS | 0.6094 | 0.6094 | 50 / 50 | 0 |
+| Answer Relevancy | RAGAS | 0.7439 | 0.7439 | 50 / 50 | 0 |
+| Latency | Custom | 5564.0196 | 5564.0196 | 50 / 50 | 0 |
+| Refusal Rate | Custom | 0.0800 | 0.0800 | 50 / 50 | 0 |
+| Hallucination Rate | Custom | 0.0233 | 0.0233 | 50 / 50 | 0 |
 
 ## Stage Metrics
 
@@ -22,40 +22,40 @@
 
 | Metric | Source | Average | Strict Average | Valid / Total | NaN Count |
 |---|---|---:|---:|---:|---:|
-| Context Recall | RAGAS | 0.0300 | 0.0300 | 50 / 50 | 0 |
-| Context Precision | RAGAS | 0.0050 | 0.0050 | 50 / 50 | 0 |
-| Evidence Hit Rate | CUSTOM | 0.8800 | 0.8800 | 50 / 50 | 0 |
-| MRR | CUSTOM | 0.8033 | 0.8033 | 50 / 50 | 0 |
+| Context Recall | RAGAS | 0.6017 | 0.6017 | 50 / 50 | 0 |
+| Context Precision | RAGAS | 0.6094 | 0.6094 | 50 / 50 | 0 |
+| Evidence Hit Rate | CUSTOM | 0.9800 | 0.9800 | 50 / 50 | 0 |
+| MRR | CUSTOM | 0.9667 | 0.9667 | 50 / 50 | 0 |
 
 ### Generation
 
 | Metric | Source | Average | Strict Average | Valid / Total | NaN Count |
 |---|---|---:|---:|---:|---:|
-| Faithfulness | RAGAS | 0.5766 | 0.5766 | 50 / 50 | 0 |
-| Answer Relevancy | RAGAS | 0.2687 | 0.2687 | 50 / 50 | 0 |
-| Hallucination Rate | CUSTOM | 0.2470 | 0.2470 | 50 / 50 | 0 |
+| Faithfulness | RAGAS | 0.8682 | 0.8682 | 50 / 50 | 0 |
+| Answer Relevancy | RAGAS | 0.7439 | 0.7439 | 50 / 50 | 0 |
+| Hallucination Rate | CUSTOM | 0.0233 | 0.0233 | 50 / 50 | 0 |
 
 ### Citation
 
 | Metric | Source | Average | Strict Average | Valid / Total | NaN Count |
 |---|---|---:|---:|---:|---:|
-| Citation Accuracy | CUSTOM | 0.8200 | 0.8200 | 50 / 50 | 0 |
-| Citation Strict Accuracy | CUSTOM | 0.6267 | 0.6267 | 50 / 50 | 0 |
+| Citation Accuracy | CUSTOM | 0.9200 | 0.9200 | 50 / 50 | 0 |
+| Citation Strict Accuracy | CUSTOM | 0.9000 | 0.9000 | 50 / 50 | 0 |
 
 ### Refusal
 
 | Metric | Source | Average | Strict Average | Valid / Total | NaN Count |
 |---|---|---:|---:|---:|---:|
-| Refusal Rate | CUSTOM | 0.6400 | 0.6400 | 50 / 50 | 0 |
-| False Refusal Rate | CUSTOM | 0.6400 | 0.6400 | 50 / 50 | 0 |
-| Refusal Precision | CUSTOM | 0.0000 | 0.0000 | 32 / 50 | 18 |
+| Refusal Rate | CUSTOM | 0.0800 | 0.0800 | 50 / 50 | 0 |
+| False Refusal Rate | CUSTOM | 0.0800 | 0.0800 | 50 / 50 | 0 |
+| Refusal Precision | CUSTOM | 0.0000 | 0.0000 | 4 / 50 | 46 |
 | Correct Refusal Behavior | CUSTOM | not run | 0.0000 | 0 / 50 | 50 |
 
 ### Logging
 
 | Metric | Source | Average | Strict Average | Valid / Total | NaN Count |
 |---|---|---:|---:|---:|---:|
-| Latency | CUSTOM | 4165.9864 | 4165.9864 | 50 / 50 | 0 |
+| Latency | CUSTOM | 5564.0196 | 5564.0196 | 50 / 50 | 0 |
 
 
 ## Segment Breakdown
@@ -66,15 +66,15 @@
 
 | Metric | Source | Average | Strict Average | Valid / Total | NaN Count |
 |---|---|---:|---:|---:|---:|
-| Faithfulness | RAGAS | 0.5766 | 0.5766 | 50 / 50 | 0 |
-| Context Recall | RAGAS | 0.0300 | 0.0300 | 50 / 50 | 0 |
-| Context Precision | RAGAS | 0.0050 | 0.0050 | 50 / 50 | 0 |
-| Answer Relevancy | RAGAS | 0.2687 | 0.2687 | 50 / 50 | 0 |
-| Refusal Rate | CUSTOM | 0.6400 | 0.6400 | 50 / 50 | 0 |
-| False Refusal Rate | CUSTOM | 0.6400 | 0.6400 | 50 / 50 | 0 |
+| Faithfulness | RAGAS | 0.8682 | 0.8682 | 50 / 50 | 0 |
+| Context Recall | RAGAS | 0.6017 | 0.6017 | 50 / 50 | 0 |
+| Context Precision | RAGAS | 0.6094 | 0.6094 | 50 / 50 | 0 |
+| Answer Relevancy | RAGAS | 0.7439 | 0.7439 | 50 / 50 | 0 |
+| Refusal Rate | CUSTOM | 0.0800 | 0.0800 | 50 / 50 | 0 |
+| False Refusal Rate | CUSTOM | 0.0800 | 0.0800 | 50 / 50 | 0 |
 | Correct Refusal Behavior | CUSTOM | not run | 0.0000 | 0 / 50 | 50 |
-| Hallucination Rate | CUSTOM | 0.2470 | 0.2470 | 50 / 50 | 0 |
-| Citation Strict Accuracy | CUSTOM | 0.6267 | 0.6267 | 50 / 50 | 0 |
+| Hallucination Rate | CUSTOM | 0.0233 | 0.0233 | 50 / 50 | 0 |
+| Citation Strict Accuracy | CUSTOM | 0.9000 | 0.9000 | 50 / 50 | 0 |
 
 ### Refusal / Not-Supported Rows
 
@@ -98,11 +98,11 @@
 | Metric | Average | Strict Average | Valid / Total | NaN Count |
 |---|---:|---:|---:|---:|
 | expected_behavior_accuracy | 1.0000 | 1.0000 | 50 / 50 | 0 |
-| evidence_hit_rate | 0.8800 | 0.8800 | 50 / 50 | 0 |
-| mrr | 0.8033 | 0.8033 | 50 / 50 | 0 |
-| citation_accuracy | 0.8200 | 0.8200 | 50 / 50 | 0 |
-| citation_strict_accuracy | 0.6267 | 0.6267 | 50 / 50 | 0 |
-| unsupported_claim_accuracy | 0.7530 | 0.7530 | 50 / 50 | 0 |
+| evidence_hit_rate | 0.9800 | 0.9800 | 50 / 50 | 0 |
+| mrr | 0.9667 | 0.9667 | 50 / 50 | 0 |
+| citation_accuracy | 0.9200 | 0.9200 | 50 / 50 | 0 |
+| citation_strict_accuracy | 0.9000 | 0.9000 | 50 / 50 | 0 |
+| unsupported_claim_accuracy | 0.9767 | 0.9767 | 50 / 50 | 0 |
 
 ## Metric Sources
 

@@ -1,3 +1,0 @@
-question,ground_truth
-Which local model does the application use by default?,The application uses Ollama with qwen2.5:7b by default.
-Which embedding model does the application use by default?,The application uses BAAI/bge-m3 as the default embedding model.

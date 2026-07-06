@@ -5,9 +5,6 @@ exclude = [
     ".venv",
     ".ruff_cache",
     ".pytest_cache",
-    "docs",
-    "frontend",
-    "backend/alembic/versions"
 ]
 line-length = 120
 indent-width = 4
