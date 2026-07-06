@@ -37,27 +37,50 @@ with st.sidebar:
         type=["md", "txt", "pdf"],
         accept_multiple_files=True,
     )
-    if uploaded_files and st.button("Ingest documents", type="primary"):
-        overall_progress = st.progress(0.0)
-        status_text = st.empty()
+    ingesting = st.session_state.get("ingesting_documents", False)
+    ingest_clicked = st.button(
+        "Ingest documents",
+        type="primary",
+        disabled=not uploaded_files or ingesting,
+    )
+    if uploaded_files and ingest_clicked:
+        st.session_state.ingesting_documents = True
+        progress_panel = st.container(border=True)
+        overall_progress = progress_panel.progress(0.0, text="Preparing ingestion...")
+        status_text = progress_panel.empty()
+        file_status = progress_panel.empty()
         total_files = len(uploaded_files)
 
-        for file_index, uploaded in enumerate(uploaded_files):
-            file_progress = st.progress(0.0)
+        try:
+            for file_index, uploaded in enumerate(uploaded_files):
+                file_number = file_index + 1
+                file_status.write(f"File {file_number}/{total_files}: `{uploaded.name}`")
+                file_progress = progress_panel.progress(0.0, text=f"Starting {uploaded.name}")
 
-            def update_file_progress(progress: float, message: str) -> None:
-                file_progress.progress(progress)
-                completed_files = file_index / total_files
-                overall_progress.progress(completed_files + progress / total_files)
-                status_text.write(message)
+                def update_file_progress(progress: float, message: str) -> None:
+                    bounded_progress = min(max(progress, 0.0), 1.0)
+                    file_progress.progress(bounded_progress, text=message)
+                    completed_files = file_index / total_files
+                    overall = completed_files + bounded_progress / total_files
+                    overall_progress.progress(
+                        min(overall, 1.0),
+                        text=f"Overall ingestion: {round(overall * 100)}%",
+                    )
+                    status_text.info(message)
 
-            record = pipeline.ingest_file(uploaded.name, uploaded.getvalue(), update_file_progress)
-            st.success(f"Indexed {record.filename} ({len(record.chunk_ids)} chunks)")
+                with st.spinner(f"Ingesting {uploaded.name}..."):
+                    record = pipeline.ingest_file(uploaded.name, uploaded.getvalue(), update_file_progress)
+                file_progress.progress(1.0, text=f"Indexed {record.filename}")
+                progress_panel.success(f"Indexed {record.filename} ({len(record.chunk_ids)} chunks)")
 
-        overall_progress.progress(1.0)
-        status_text.write("Ingestion completed.")
-        st.cache_resource.clear()
-        st.rerun()
+            overall_progress.progress(1.0, text="Ingestion completed.")
+            status_text.success("Ingestion completed.")
+            st.cache_resource.clear()
+            st.session_state.ingesting_documents = False
+            st.rerun()
+        except Exception:
+            st.session_state.ingesting_documents = False
+            raise
 
     records = pipeline.registry.all()
     if records:
