@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.util
 import re
+import tempfile
 import unicodedata
 from dataclasses import dataclass, field
 from io import BytesIO
@@ -11,6 +13,7 @@ from typing import BinaryIO
 from pypdf import PdfReader
 
 SUPPORTED_EXTENSIONS = {".md", ".txt", ".pdf"}
+PARSER_VERSION = "pymupdf4llm-v2"
 
 
 @dataclass
@@ -40,6 +43,14 @@ def stable_id(text: str) -> str:
     return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
 
 
+def source_version_hash(filename: str, content: bytes) -> str:
+    digest = hashlib.sha256()
+    digest.update(PARSER_VERSION.encode("utf-8"))
+    digest.update(Path(filename).suffix.lower().encode("utf-8"))
+    digest.update(content)
+    return digest.hexdigest()
+
+
 def preprocess_text(text: str) -> str:
     """Normalize document text before chunking."""
     text = unicodedata.normalize("NFC", text)
@@ -67,16 +78,24 @@ def read_pdf(file_obj: BinaryIO) -> str:
 
 def _normalize_section_title(line: str) -> str | None:
     line = line.strip()
+
+    def clean_title(title: str) -> str:
+        title = title.strip().strip(":")
+        title = re.sub(r"^(\*\*|__|\*|_)+", "", title)
+        title = re.sub(r"(\*\*|__|\*|_)+$", "", title)
+        return title.strip().strip(":")
+
     markdown_match = re.match(r"^(#{1,6})\s+(.+)$", line)
     if markdown_match:
-        return markdown_match.group(2).strip()
+        return clean_title(markdown_match.group(2))
 
     numbered_match = re.match(r"^(\d+(?:\.\d+)*\.?)\s+([A-Z][^\n]{2,120})$", line)
     if numbered_match and len(line.split()) <= 14 and "@" not in line and "," not in line:
-        return line.rstrip(".")
+        return clean_title(line.rstrip("."))
 
     keywords = {
         "abstract",
+        "concluding remarks",
         "introduction",
         "conclusion",
         "references",
@@ -87,9 +106,10 @@ def _normalize_section_title(line: str) -> str | None:
         "model",
         "discussion",
     }
-    lowered = line.lower().strip(":")
+    cleaned_line = clean_title(line)
+    lowered = cleaned_line.lower().strip(":")
     if lowered in keywords:
-        return line.strip(":")
+        return cleaned_line
     return None
 
 
@@ -147,6 +167,27 @@ def _append_text_blocks(
     if section != "Abstract":
         blocks.append(StructuredBlock(content, page, section))
         return section
+
+    if re.match(r"^\d+\s+[A-Z][^\n]+(?:Email:|@)", content):
+        blocks.append(StructuredBlock(content, page, "Front Matter", "footnote"))
+        return section
+
+    acknowledgement_markers = (
+        "i thank ",
+        "this paper benefited from",
+        "i acknowledge financial support",
+    )
+    if content.lower().startswith(acknowledgement_markers):
+        blocks.append(StructuredBlock(content, page, "Front Matter", "acknowledgements"))
+        return section
+
+    keyword_match = re.match(r"(?is)^(Keywords?\b.*?\bJEL Codes?[^\n]*)(?:\n(.+))?$", content)
+    if keyword_match:
+        blocks.append(StructuredBlock(keyword_match.group(1).strip(), page, "Abstract", "keywords"))
+        introduction_part = (keyword_match.group(2) or "").strip()
+        if introduction_part:
+            blocks.append(StructuredBlock(introduction_part, page, "Introduction"))
+        return "Introduction"
 
     footnote_match = re.search(r"\n\d+\s+[A-Z][^\n]+(?:Email:|@)", content)
     if footnote_match:
@@ -257,46 +298,33 @@ def _blocks_to_markdown(blocks: list[StructuredBlock]) -> str:
     return "\n".join(lines).strip()
 
 
+def _convert_pdf_with_pymupdf4llm(content: bytes) -> str:
+    if importlib.util.find_spec("pymupdf4llm") is None:
+        raise RuntimeError(
+            "PDF ingestion on the pymupdf4llm-test branch requires PyMuPDF4LLM. "
+            "Install it with `pip install -r requirements.txt`."
+        )
+
+    import pymupdf4llm
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        pdf_path = Path(temp_dir) / "uploaded.pdf"
+        pdf_path.write_bytes(content)
+        return pymupdf4llm.to_markdown(str(pdf_path))
+
+
 def _read_pdf_structured(content: bytes) -> tuple[str, list[StructuredBlock]]:
     try:
-        import pdfplumber
-    except ImportError:
-        text = read_pdf(BytesIO(content))
-        blocks = _blocks_from_markdown(text)
-        return _blocks_to_markdown(blocks), blocks
+        markdown = _convert_pdf_with_pymupdf4llm(content)
+    except RuntimeError:
+        raise
+    except Exception:
+        raw_text = read_pdf(BytesIO(content))
+        markdown = preprocess_text(raw_text)
 
-    blocks: list[StructuredBlock] = []
-    current_section = "Document"
-    table_index = 0
-
-    with pdfplumber.open(BytesIO(content)) as pdf:
-        for page_index, page in enumerate(pdf.pages, start=1):
-            page_text = preprocess_text(page.extract_text() or "")
-            page_blocks = _blocks_from_markdown(page_text, default_page=page_index)
-            for block in page_blocks:
-                if block.section != "Document":
-                    current_section = block.section
-                block.section = current_section
-                blocks.append(block)
-
-            for table in page.extract_tables() or []:
-                table_markdown = _markdown_table_from_rows(table)
-                if not table_markdown:
-                    continue
-                table_index += 1
-                table_id = _extract_table_number(table_markdown, table_index)
-                blocks.append(
-                    StructuredBlock(
-                        text=table_markdown,
-                        page=page_index,
-                        section=current_section,
-                        content_type="table",
-                        table_id=table_id,
-                    )
-                )
-
-    markdown = _blocks_to_markdown(blocks)
-    return markdown, blocks
+    text = preprocess_text(markdown)
+    blocks = _blocks_from_markdown(text)
+    return _blocks_to_markdown(blocks), blocks
 
 
 def _block_metadata(block: StructuredBlock) -> dict:
@@ -351,7 +379,7 @@ def load_file(filename: str, content: bytes) -> Document:
         structured_blocks = _blocks_from_markdown(text)
 
     doc_id = stable_id(filename)
-    version_hash = stable_id(text)
+    version_hash = source_version_hash(filename, content)
     return Document(
         text=text,
         metadata={

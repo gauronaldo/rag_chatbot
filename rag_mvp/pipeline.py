@@ -8,7 +8,7 @@ from dataclasses import asdict
 from pathlib import Path
 
 from rag_mvp.config import AppConfig
-from rag_mvp.documents import Document, load_file, split_into_chunks
+from rag_mvp.documents import Document, load_file, source_version_hash, split_into_chunks, stable_id
 from rag_mvp.ollama_client import OllamaClient
 from rag_mvp.registry import DocumentRecord, JsonDocumentRegistry
 from rag_mvp.vector_store import VectorStore
@@ -37,6 +37,13 @@ class RagPipeline:
         progress_callback: Callable[[float, str], None] | None = None,
     ) -> DocumentRecord:
         self._progress(progress_callback, 0.05, f"Loading {filename}")
+        doc_id = stable_id(filename)
+        content_version_hash = source_version_hash(filename, content)
+        existing = self.registry.get(doc_id)
+        if existing and existing.version_hash == content_version_hash:
+            self._progress(progress_callback, 1.0, f"{filename} is already indexed")
+            return existing
+
         document = load_file(filename, content)
         self._progress(progress_callback, 0.25, f"Loaded {filename}")
 
@@ -83,8 +90,13 @@ class RagPipeline:
         self.registry.clear()
         self._clear_processed_artifacts()
 
-    def retrieve(self, question: str, top_k: int | None = None) -> list[dict]:
-        return self.vector_store.search(question, top_k or self.config.top_k)
+    def retrieve(
+        self,
+        question: str,
+        top_k: int | None = None,
+        document_ids: list[str] | None = None,
+    ) -> list[dict]:
+        return self.vector_store.search(question, top_k or self.config.top_k, document_ids=document_ids)
 
     def build_prompt(self, question: str, contexts: list[dict]) -> str:
         context_blocks = []
@@ -116,17 +128,21 @@ class RagPipeline:
             f"Answer in English with citations:\n"
         )
 
-    def answer(self, question: str) -> dict:
+    def answer(self, question: str, document_ids: list[str] | None = None) -> dict:
         started = time.perf_counter()
-        contexts = self.retrieve(question)
+        contexts = self.retrieve(question, document_ids=document_ids)
         prompt = self.build_prompt(question, contexts)
         answer = self.llm.generate(prompt)
         latency_ms = round((time.perf_counter() - started) * 1000, 2)
         return {"answer": answer, "contexts": contexts, "latency_ms": latency_ms}
 
-    def stream_answer(self, question: str) -> tuple[list[dict], Iterator[str], float]:
+    def stream_answer(
+        self,
+        question: str,
+        document_ids: list[str] | None = None,
+    ) -> tuple[list[dict], Iterator[str], float]:
         started = time.perf_counter()
-        contexts = self.retrieve(question)
+        contexts = self.retrieve(question, document_ids=document_ids)
         prompt = self.build_prompt(question, contexts)
         return contexts, self.llm.stream(prompt), started
 

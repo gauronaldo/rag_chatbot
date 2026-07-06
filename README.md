@@ -2,46 +2,86 @@
 
 Local-first Retrieval-Augmented Generation MVP for English document Q&A.
 
-This project is designed as a portfolio-ready RAG application: small enough to run locally, but complete enough to show
-the full pipeline from ingestion to retrieval, generation, citation, and evaluation.
+This project is designed as a portfolio-ready RAG application: it runs locally, indexes PDFs into a persistent vector
+store, answers with source citations, and includes an end-to-end evaluation pipeline with RAGAS plus custom metrics.
 
-## Features
+## Highlights
 
-- Streamlit app for upload, chat, and source inspection.
-- Local LLM through Ollama, defaulting to `qwen2.5:7b`.
-- Retrieval embeddings with `BAAI/bge-m3`.
+- Streamlit app for upload, ingestion progress, document-scoped chat, and retrieved-source inspection.
+- Local generation through Ollama, defaulting to `qwen2.5:7b`.
+- Local embeddings with `BAAI/bge-m3`.
 - Chroma persistent vector store.
-- JSON document registry for incremental indexing and precise chunk deletion.
-- Processed document artifacts for debugging structured parsing.
-- English-only prompting with source citations like `[S1]`.
-- Evaluation layer with RAGAS core metrics plus custom MVP metrics.
+- JSON registry for incremental indexing and precise chunk deletion.
+- PDF-to-Markdown ingestion with PyMuPDF4LLM.
+- Section, table, and figure-caption metadata for retrieval debugging.
+- English-only answering with citations such as `[S1]`.
+- Evaluation pipeline with RAGAS core metrics and custom RAG metrics.
+- Saved evaluation reports for dev, holdout, stress, and combined reporting.
+
+## Current Scope
+
+The current branch focuses on one English-only RAG MVP. It does not use the older backend/frontend architecture, SQLite,
+or MySQL. Multilingual behavior was intentionally removed from this branch so the retrieval and evaluation pipeline can
+be tested cleanly in English.
+
+The showcase document is:
+
+```text
+w18347.pdf
+```
 
 ## Architecture
 
-The MVP has one local Streamlit entrypoint and a small Python package:
+```text
+app.py
+  Streamlit UI
+  - upload files
+  - show ingestion progress
+  - select one indexed document or all documents as the retrieval scope
+  - chat with the indexed corpus
+  - inspect retrieved contexts and scores
 
-1. Users upload `.md`, `.txt`, or `.pdf` files in Streamlit.
-2. The loader converts documents into structured Markdown internally.
-3. PDF ingestion detects pages, headings/sections, tables, and figure captions where possible.
-4. The structured Markdown and block metadata are saved under `processed_docs/` for debugging.
-5. The chunker splits by section and keeps tables/figure captions as typed chunks.
-6. `BAAI/bge-m3` embeds chunks and stores them in Chroma with page, section, and content-type metadata.
-7. The JSON registry stores document IDs, version hashes, and chunk IDs.
-8. User questions retrieve candidate chunks from Chroma and apply metadata-aware boosting for table/section/figure queries.
-9. The prompt instructs Ollama/Qwen to answer in English with citations.
-10. The app displays the answer, latency, retrieved contexts, and retrieval scores.
+rag_mvp/
+  config.py          Runtime configuration and default paths
+  documents.py       PDF/Markdown/Text loading, PyMuPDF4LLM conversion, structured block parsing, chunking
+  registry.py        JSON document registry
+  vector_store.py    Chroma + BAAI/bge-m3 retrieval with metadata-aware boosting
+  ollama_client.py   Ollama generation client
+  pipeline.py        Ingestion, retrieval, prompting, answer orchestration
+  evaluation.py      Custom metrics and RAGAS integration helpers
+  run_evaluation.py  Evaluation CLI
+  debug_retrieval.py Retrieval/chunking diagnostic CLI
+
+evaluation/
+  w18347_dev_eval.csv
+  w18347_holdout_eval.csv
+  w18347_stress_eval.csv
+
+processed_docs/
+  <document_id>_<filename>.structured.md
+  <document_id>_<filename>.blocks.json
+
+reports/
+  w18347_dev_results.csv
+  w18347_dev_summary.md
+  w18347_holdout_results.csv
+  w18347_holdout_summary.md
+  w18347_stress_results.csv
+  w18347_stress_summary.md
+  evaluation_summary.md
+```
 
 ## Setup
 
 Install Python 3.12 and Ollama first.
 
-Pull the local Qwen model:
+Pull the default local model:
 
 ```powershell
 ollama pull qwen2.5:7b
 ```
 
-Create a virtual environment and install dependencies:
+Create and activate a virtual environment:
 
 ```powershell
 py -3.12 -m venv .venv
@@ -58,167 +98,229 @@ ollama serve
 Run the app:
 
 ```powershell
-streamlit run streamlit_app.py
+streamlit run app.py
 ```
 
-Open the URL printed by Streamlit, usually `http://localhost:8501`.
+Open the Streamlit URL printed in the terminal, usually `http://localhost:8501`.
 
 ## Configuration
 
-The app can be configured with environment variables:
+Runtime settings are configured with environment variables:
 
 ```powershell
 $env:OLLAMA_MODEL = "qwen2.5:7b"
 $env:OLLAMA_BASE_URL = "http://localhost:11434"
+$env:OLLAMA_TEMPERATURE = "0.2"
 $env:EMBEDDING_MODEL = "BAAI/bge-m3"
+$env:CHROMA_COLLECTION = "structured_rag_mvp"
 $env:TOP_K = "4"
 $env:CHUNK_SIZE = "1000"
 $env:CHUNK_OVERLAP = "120"
 ```
 
-Changing the embedding model requires rebuilding the vector store because embeddings from different models are not
+Changing `EMBEDDING_MODEL` requires rebuilding the vector store because embeddings from different models are not
 compatible.
 
-## How It Works
+## Ingestion Flow
 
-1. Upload `.md`, `.txt`, or `.pdf` files in the sidebar.
-2. The loader decodes text, normalizes Unicode to NFC, and converts content into structured Markdown internally.
-3. PDF ingestion preserves page numbers and detects headings/sections. With `pdfplumber`, detected tables are converted
-   to Markdown tables. Figure captions are detected from extractable text, but chart pixels are not interpreted.
-4. The app saves `processed_docs/<document_id>_<filename>.structured.md` and
-   `processed_docs/<document_id>_<filename>.blocks.json` for debugging and portfolio inspection.
-5. The chunker splits text by section and keeps table/figure-caption chunks separate, attaching metadata such as
-   `page`, `section`, `content_type`, `table_id`, and `figure_id`.
-6. `BAAI/bge-m3` embeds chunks and stores them in Chroma.
-7. The JSON registry stores document IDs, version hashes, and chunk IDs.
-8. At question time, the app retrieves more candidates than the final `TOP_K`, then boosts table/section/figure
-   candidates when the query mentions table IDs, section IDs, figure IDs, or numeric/table-like terms.
-9. Ollama runs Qwen locally and returns an English-only answer with citations.
-10. The UI displays the answer, latency, retrieved contexts, base similarity, and metadata boost.
+1. The user uploads `.pdf`, `.md`, or `.txt` files in `app.py`.
+2. `RagPipeline.ingest_file()` computes a document ID and source version hash.
+3. The registry skips ingestion if the same file content is already indexed.
+4. PDFs are converted to Markdown with PyMuPDF4LLM.
+5. The loader normalizes text and parses structured blocks.
+6. Structured Markdown and block metadata are saved under `processed_docs/` as local debug artifacts.
+7. The chunker splits by section and separates table / figure-caption chunks where possible.
+8. Each chunk receives metadata such as filename, page, section, content type, table ID, and figure ID.
+9. Chunks are embedded with `BAAI/bge-m3`.
+10. Chunks and metadata are stored in Chroma.
+11. The JSON registry stores document IDs, version hashes, and Chroma chunk IDs.
+
+The saved `processed_docs/` files are intentionally useful during local debugging, but they are ignored by git because
+they are generated from source documents and can be rebuilt by re-ingesting.
+
+## Retrieval And Answering Flow
+
+1. The user asks a question in the Streamlit chat.
+2. The question is embedded with the same embedding model.
+3. Chroma retrieves candidate chunks.
+4. If a document is selected in the sidebar, retrieval is filtered to that document ID.
+5. Metadata-aware boosting promotes candidates that match explicit section, table, figure, numeric, or content-type
+signals in the question.
+6. The final contexts are inserted into a grounded prompt.
+7. Ollama/Qwen answers using only the provided contexts.
+8. The answer is returned in English with citations.
+9. The UI shows latency and the retrieved contexts, including similarity score and metadata boost.
+
+The prompt is intentionally conservative: if the retrieved context is insufficient, the model should say that the answer
+was not found in the context.
 
 ## Evaluation
 
-The MVP includes custom evaluation metrics in `rag_mvp/evaluation.py`:
+The evaluation pipeline runs outside the UI. It requires the target document to be indexed first.
 
-- False refusal rate
-- Refusal precision
-- Correct refusal behavior
-- Evidence hit rate
-- MRR
-- Citation accuracy
-- Citation strict accuracy
-- Unsupported claim accuracy
-- Latency
-
-The RAGAS core runner targets:
-
-- Faithfulness
-- Answer Relevancy
-- Context Precision
-- Context Recall
-
-RAGAS uses the local Ollama judge configured by `OLLAMA_MODEL`, defaulting to `qwen2.5:7b`, and local
-`BAAI/bge-m3` embeddings. It does not require `OPENAI_API_KEY`.
-
-A sample evaluation file is available at `evaluation/sample_eval_set.csv`. Results are saved to
-`reports/rag_mvp_eval_results.csv`.
-
-Run evaluation after indexing documents. RAGAS core metrics run by default. If your virtual environment is already
-activated, use `python`; otherwise call the venv Python explicitly.
-
-```powershell
-python -m rag_mvp.run_evaluation --dataset evaluation\w18347_holdout_eval.csv
-```
-
-Run all three w18347 splits in one command:
+Run all three evaluation sets:
 
 ```powershell
 python -m rag_mvp.run_evaluation --w18347-all
 ```
 
-Test only the RAGAS evaluator on the dev split, reusing an existing custom results CSV:
+Run one split:
 
 ```powershell
-python -m rag_mvp.run_evaluation --dataset evaluation\w18347_dev_eval.csv --output reports\w18347_dev_eval_results.csv --ragas-only --ragas-raise-exceptions --ragas-num-ctx 8192
+python -m rag_mvp.run_evaluation --dataset evaluation\w18347_holdout_eval.csv
 ```
 
-For local Ollama judges, RAGAS defaults to `--ragas-max-workers 1`, `--ragas-batch-size 1`,
-`--ragas-timeout 600`, and `--ragas-answer-strictness 1` to avoid overloading the model during scoring.
-
-Run multiple custom datasets in one command:
+Run several explicit datasets:
 
 ```powershell
 python -m rag_mvp.run_evaluation --datasets evaluation\w18347_dev_eval.csv evaluation\w18347_holdout_eval.csv evaluation\w18347_stress_eval.csv
 ```
 
-By default this writes:
+If the virtual environment is not activated, use the venv Python explicitly:
 
-```text
-reports/<dataset_stem>_results.csv
-reports/<dataset_stem>_ragas_results.csv
-reports/<dataset_stem>_summary.md
+```powershell
+.\.venv\Scripts\python.exe -m rag_mvp.run_evaluation --w18347-all
 ```
 
-When running multiple datasets, the script also writes `reports/evaluation_summary.md`.
+RAGAS runs by default. Use `--skip-ragas` only for quick debugging because Faithfulness, Context Recall, Context
+Precision, and Answer Relevancy are core metrics for the final report.
 
-Each Markdown summary reports metrics by RAG stage, valid counts, NaN counts, and a strict average where NaN is counted
-as 0. Answerable rows are separated from refusal/not-supported rows because RAGAS factual QA metrics do not directly
-measure correct refusal behavior.
+Useful RAGAS stability options for local Ollama judges:
 
-For quick debugging without RAGAS, use `--skip-ragas`; final evaluation should not skip it because Faithfulness,
-Context Recall, Context Precision, and Answer Relevancy are core metrics.
+```powershell
+python -m rag_mvp.run_evaluation --dataset evaluation\w18347_dev_eval.csv --ragas-raise-exceptions --ragas-num-ctx 8192 --ragas-max-workers 1 --ragas-batch-size 1
+```
 
-## JSON Registry
+## Evaluation Outputs
 
-The MVP uses `vector_store/rag_mvp_registry.json` to track indexed documents, version hashes, and Chroma chunk IDs.
-This keeps setup simple and avoids database services for a local portfolio demo.
+Each dataset writes exactly one merged result CSV and one Markdown summary:
 
-## Processed Documents
+```text
+reports/<dataset_stem_without_eval>_results.csv
+reports/<dataset_stem_without_eval>_summary.md
+```
 
-Ingestion writes debug artifacts to `processed_docs/`:
+For example:
 
-- `<document_id>_<filename>.structured.md`: the structured Markdown representation used for chunking.
-- `<document_id>_<filename>.blocks.json`: block-level metadata such as page, section, content type, table ID, and figure
-  ID.
+```text
+evaluation/w18347_holdout_eval.csv
+reports/w18347_holdout_results.csv
+reports/w18347_holdout_summary.md
+```
 
-These files are useful for checking whether a retrieval error starts at PDF parsing, chunking, or ranking. Figure
-support is caption-aware only; this MVP does not yet interpret visual chart content inside figure images.
+When multiple datasets are run, the CLI also writes:
+
+```text
+reports/evaluation_summary.md
+```
+
+The result CSV contains row-level answers, retrieved contexts, custom metrics, and RAGAS metrics in one file. The
+Markdown summaries report averages, strict averages, valid counts, and NaN counts.
+
+## Metrics
+
+RAGAS core metrics:
+
+- Faithfulness
+- Context Recall
+- Context Precision
+- Answer Relevancy
+
+Custom metrics:
+
+- Latency
+- Refusal Rate
+- False Refusal Rate
+- Refusal Precision
+- Correct Refusal Behavior
+- Evidence Hit Rate
+- MRR
+- Citation Accuracy
+- Citation Strict Accuracy
+- Unsupported Claim Accuracy
+- Hallucination Rate
+
+Hallucination Rate is computed as:
+
+```text
+1 - unsupported_claim_accuracy
+```
+
+Answerable rows and refusal / not-supported rows are reported separately because RAGAS factual QA metrics are not the
+best primary signal for correct refusal behavior.
+
+## Latest Evaluation Snapshot
+
+The latest full run contains 50 questions per split.
+
+| Dataset | Faithfulness | Context Recall | Context Precision | Answer Relevancy | Hallucination Rate | Latency |
+|---|---:|---:|---:|---:|---:|---:|
+| Dev | 0.8682 | 0.6017 | 0.6094 | 0.7439 | 0.0233 | 5564 ms |
+| Holdout | 0.8177 | 0.6450 | 0.5789 | 0.7498 | 0.0339 | 5217 ms |
+| Stress | 0.8080 | 0.6033 | 0.4789 | 0.2862 | 0.1420 | 6571 ms |
+
+Interpretation:
+
+- Dev and holdout show solid grounded-answer behavior for a local RAG MVP.
+- Hallucination is low on dev and holdout.
+- Stress is intentionally harder and mixes answerable, refusal, unsupported, and claim-verification rows.
+- The main current weakness is false refusal on detailed table, definition, and numeric questions.
+- Table/numeric retrieval and reranking are natural next improvements.
+
+## Engineering Tradeoffs And Known Limitations
+
+This MVP intentionally favors a transparent local architecture over a heavier production stack.
+
+- **Local-first runtime:** Ollama, Chroma, JSON registry, and local embeddings keep the project easy to run without
+  hosted services. The tradeoff is slower latency than managed inference and less robust evaluator reliability than a
+  stronger hosted judge.
+- **Conservative prompting:** The assistant is instructed to answer only from retrieved context. This keeps hallucination
+  low, but can produce false refusals when retrieval misses a specific table, definition, or numeric fact.
+- **Lightweight PDF parsing:** PyMuPDF4LLM is fast and simple for text-first papers. It does not interpret chart pixels
+  or image-only figure content; figure support is caption-aware rather than vision-based.
+- **Simple retrieval stack:** Dense retrieval plus metadata-aware boosting is explainable and portfolio-friendly. The
+  current weakness is detailed table/numeric retrieval; a production version would add table row normalization, adjacent
+  chunk expansion, and a reranker.
+- **Evaluation scope:** The benchmark reports are for `w18347.pdf`. Multi-document chat is supported in the app, but the
+  formal metrics should be read as single-document benchmark evidence.
 
 ## Retrieval Debugging
 
-Use the diagnostic CLI when an answer is wrong but the information appears in `processed_docs/`:
+Use the diagnostic CLI when the answer is wrong but the information appears in `processed_docs/`:
 
 ```powershell
-python -m rag_mvp.debug_retrieval "what is the Abstract" --document PerezPerez2020 --skip-vector
+python -m rag_mvp.debug_retrieval "what is the abstract?" --document w18347 --skip-vector
 ```
 
-The output is split by stage:
+The output helps isolate whether the problem is:
 
-- Parsed block matches: whether parsing assigned the right section/content metadata.
-- Reconstructed chunk matches: whether chunking preserved the target text and metadata.
-- Structured Markdown keyword hits: whether the converted Markdown contains the target words.
-- Chroma metadata matches: whether indexed chunks can be found by metadata filters.
-- Final vector + metadata retrieval: whether final ranking returns the right contexts.
+- PDF-to-Markdown conversion
+- section/table/figure metadata parsing
+- chunk reconstruction
+- Chroma metadata lookup
+- vector retrieval and metadata boosting
 
-If parsed blocks or reconstructed chunks are wrong, reset and re-ingest after parser changes. If Chroma metadata matches
-are correct but final retrieval is wrong, tune metadata boosting or add reranking.
+If parsing or chunks are wrong, reset and re-ingest after parser changes. If metadata matches are correct but final
+retrieval is wrong, tune retrieval, boost logic, top-k, or add a reranker.
 
-## Project Layout
+## Runtime Artifacts
+
+Ignored local runtime state:
 
 ```text
-rag_mvp/
-  config.py          Runtime config
-  documents.py       Loading, structured Markdown conversion, section/table/figure-caption chunking
-  registry.py        JSON document registry
-  vector_store.py    Chroma + BAAI/bge-m3 retrieval with metadata-aware boosting
-  ollama_client.py   Local Ollama generation
-  pipeline.py        Ingest, retrieve, answer orchestration
-  evaluation.py      RAG evaluation helpers
-streamlit_app.py     Streamlit MVP UI
-evaluation/          Sample evaluation dataset
-processed_docs/      Structured Markdown and block metadata generated during ingestion
-tests/               Unit tests
-requirements.txt     Python dependencies for venv + pip setup
+vector_store/rag_mvp/
+vector_store/rag_mvp_registry.json
+processed_docs/
+.env
+.venv/
 ```
 
-The MVP entrypoint is `streamlit_app.py`.
+Tracked portfolio artifacts:
+
+```text
+reports/
+evaluation/
+```
+
+This means another user can inspect the evaluation datasets and reports, while rebuilding local processed documents and
+the vector store on their machine by ingesting `w18347.pdf`.

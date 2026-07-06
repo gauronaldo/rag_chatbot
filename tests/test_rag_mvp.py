@@ -1,8 +1,9 @@
 from pathlib import Path
 
-from rag_mvp.documents import load_file, preprocess_text, split_into_chunks
+from rag_mvp.documents import load_file, preprocess_text, source_version_hash, split_into_chunks
 from rag_mvp.evaluation import citation_accuracy, false_refusal
 from rag_mvp.registry import DocumentRecord, JsonDocumentRegistry
+from rag_mvp.run_evaluation import _report_stem
 from rag_mvp.vector_store import VectorStore
 
 
@@ -21,6 +22,14 @@ def test_load_and_split_english_markdown():
     assert chunks[0].metadata["document_id"] == doc.metadata["document_id"]
 
 
+def test_source_version_hash_tracks_file_content():
+    first = source_version_hash("demo.pdf", b"same content")
+    second = source_version_hash("demo.pdf", b"same content")
+    changed = source_version_hash("demo.pdf", b"different content")
+    assert first == second
+    assert first != changed
+
+
 def test_split_preserves_section_and_table_metadata():
     content = """# Results
 
@@ -36,6 +45,32 @@ This section summarizes the findings.
     assert table_chunks
     assert table_chunks[0].metadata["section"] == "Results"
     assert table_chunks[0].metadata["table_id"] == "3"
+
+
+def test_split_strips_markdown_emphasis_from_section_metadata():
+    content = """# **Concluding Remarks**
+
+The paper finds minimum wages affect informal wages directly.
+"""
+    doc = load_file("demo.md", content.encode("utf-8"))
+    chunks = split_into_chunks(doc, chunk_size=300, chunk_overlap=20)
+    assert chunks[0].metadata["section"] == "Concluding Remarks"
+
+
+def test_split_detects_concluding_remarks_heading():
+    content = """# Results
+
+The results section ends here.
+
+Concluding Remarks
+
+The paper finds minimum wages affect informal wages directly.
+"""
+    doc = load_file("demo.md", content.encode("utf-8"))
+    chunks = split_into_chunks(doc, chunk_size=300, chunk_overlap=20)
+    concluding_chunks = [chunk for chunk in chunks if chunk.metadata.get("section") == "Concluding Remarks"]
+    assert concluding_chunks
+    assert "affect informal wages directly" in concluding_chunks[0].text
 
 
 def test_split_preserves_figure_caption_metadata():
@@ -69,6 +104,31 @@ The minimum wage is a common policy in developed and developing countries.
     assert "common policy" in introduction_chunks[0].text
 
 
+def test_abstract_excludes_front_matter_and_acknowledgements():
+    content = """# Abstract
+
+The paper studies minimum wages.
+
+1 Banco de Mexico. Email: author@example.com.
+
+I thank several colleagues for helpful comments.
+
+Keywords Minimum wage. JEL Codes J31
+
+The minimum wage is a common policy in developed and developing countries.
+"""
+    doc = load_file("demo.md", content.encode("utf-8"))
+    chunks = split_into_chunks(doc, chunk_size=300, chunk_overlap=20)
+    abstract_chunks = [chunk for chunk in chunks if chunk.metadata.get("section") == "Abstract"]
+    front_matter_chunks = [chunk for chunk in chunks if chunk.metadata.get("section") == "Front Matter"]
+    introduction_chunks = [chunk for chunk in chunks if chunk.metadata.get("section") == "Introduction"]
+    assert abstract_chunks
+    assert front_matter_chunks
+    assert introduction_chunks
+    assert "I thank" not in abstract_chunks[0].text
+    assert "Email:" not in abstract_chunks[0].text
+
+
 def test_metadata_boost_prioritizes_matching_table():
     features = VectorStore._query_features("What does Table 3 report?")
     exact_table = {"content_type": "table", "table_id": "3", "section": "Results"}
@@ -94,6 +154,29 @@ def test_metadata_boost_prioritizes_named_section():
     )
 
 
+def test_query_maps_conclusion_to_concluding_remarks():
+    features = VectorStore._query_features("What is the conclusion?")
+    conclusion_text = {"content_type": "text", "section": "Concluding Remarks"}
+    bold_conclusion_text = {"content_type": "text", "section": "**Concluding Remarks**"}
+    method_text = {"content_type": "text", "section": "A Differences-in-Differences Strategy"}
+    assert features["section_name"] == "Concluding Remarks"
+    assert VectorStore._metadata_boost(features, conclusion_text) > VectorStore._metadata_boost(features, method_text)
+    assert VectorStore._metadata_boost(features, bold_conclusion_text) > VectorStore._metadata_boost(
+        features,
+        method_text,
+    )
+
+
+def test_document_scope_filter_helpers():
+    assert VectorStore._document_where(None) is None
+    assert VectorStore._document_where(["doc-1"]) == {"document_id": "doc-1"}
+    assert VectorStore._document_where(["doc-1", "doc-2"]) == {
+        "document_id": {"$in": ["doc-1", "doc-2"]},
+    }
+    assert VectorStore._metadata_in_scope({"document_id": "doc-1"}, ["doc-1"]) is True
+    assert VectorStore._metadata_in_scope({"document_id": "doc-2"}, ["doc-1"]) is False
+
+
 def test_json_registry_round_trip(tmp_path: Path):
     registry = JsonDocumentRegistry(tmp_path / "registry.json")
     record = DocumentRecord("doc-1", "demo.md", "demo.md", 10, "hash", ["c1", "c2"])
@@ -108,3 +191,8 @@ def test_custom_evaluation_metrics():
     ground_truth = "There is an answer"
     assert false_refusal(refusal, ground_truth) == 1
     assert citation_accuracy("The answer is here [S1] [S3]", ["ctx1", "ctx2"]) == 0.5
+
+
+def test_report_stem_drops_eval_suffix():
+    assert _report_stem(Path("evaluation/w18347_dev_eval.csv")) == "w18347_dev"
+    assert _report_stem(Path("evaluation/custom.csv")) == "custom"
