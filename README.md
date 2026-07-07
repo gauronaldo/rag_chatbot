@@ -38,48 +38,7 @@ whole system can be inspected, run, and evaluated on a laptop.
 
 ## Architecture
 
-```mermaid
-flowchart TB
-    subgraph UI["Streamlit Application"]
-        U1["Upload documents"]
-        U2["Select search scope<br/>one document or all documents"]
-        U3["Ask questions and inspect sources"]
-    end
-
-    subgraph INGEST["Ingestion and Indexing"]
-        I1["PyMuPDF4LLM converts PDFs<br/>to Markdown"]
-        I2["Normalize text and detect<br/>sections, tables, captions"]
-        I3["Create metadata-rich chunks"]
-        I4["Embed chunks with<br/>BAAI/bge-m3"]
-        I5["Persist chunks in Chroma<br/>and registry JSON"]
-    end
-
-    subgraph RETRIEVE["Retrieval and Answering"]
-        R1["Embed user query"]
-        R2["Filter by selected document"]
-        R3["Retrieve candidates from Chroma"]
-        R4["Boost section/table/figure<br/>and numeric matches"]
-        R5["Build grounded prompt"]
-        R6["Ollama Qwen2.5 answers<br/>with citations"]
-    end
-
-    subgraph EVAL["Evaluation"]
-        E1["Dev / holdout / stress CSVs"]
-        E2["Custom retrieval, citation,<br/>refusal, latency metrics"]
-        E3["RAGAS faithfulness,<br/>recall, precision, relevancy"]
-        E4["Merged CSV results<br/>and Markdown summaries"]
-    end
-
-    U1 --> INGEST
-    INGEST --> U2
-    U2 --> RETRIEVE
-    U3 --> R1
-    R6 --> U3
-    E1 --> E2
-    E1 --> E3
-    E2 --> E4
-    E3 --> E4
-```
+![Local RAG Document Q&A Assistant Workflow](assets/c3012ae7-c580-4a75-8131-f5aa170e6c15.png)
 
 | Area | Main Files | Role |
 |---|---|---|
