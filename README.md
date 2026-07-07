@@ -5,6 +5,29 @@ Local-first Retrieval-Augmented Generation MVP for English document Q&A.
 This project is designed as a portfolio-ready RAG application: it runs locally, indexes PDFs into a persistent vector
 store, answers with source citations, and includes an end-to-end evaluation pipeline with RAGAS plus custom metrics.
 
+## GitHub Repository Metadata
+
+**Description:** Local-first RAG document Q&A assistant with Streamlit, Ollama/Qwen2.5, BAAI/bge-m3 embeddings, Chroma,
+PDF-to-Markdown ingestion, source citations, and RAGAS evaluation.
+
+**Topics:** `rag`, `retrieval-augmented-generation`, `streamlit`, `ollama`, `qwen`, `chromadb`, `sentence-transformers`,
+`pdf-processing`, `pymupdf4llm`, `ragas`, `local-llm`, `portfolio-project`
+
+## Key Results
+
+- Built an end-to-end local RAG pipeline for PDF ingestion, semantic retrieval, grounded answer generation, citation
+  display, and evaluation.
+- Added document-scoped retrieval so users can query one selected document or search across all indexed documents.
+- Evaluated the benchmark document with an 80-question dev/holdout/stress evaluation suite.
+- Achieved strong grounded-answer behavior on the benchmark, including holdout Faithfulness above `0.81` and holdout
+  Hallucination Rate below `3.5%`.
+- Documented engineering tradeoffs around conservative prompting, table/numeric retrieval, figure parsing, and local
+  evaluator reliability.
+
+## Demo
+
+![English RAG Assistant demo](assets/demo_app.png)
+
 ## Highlights
 
 - Streamlit app for upload, ingestion progress, document-scoped chat, and retrieved-source inspection.
@@ -18,19 +41,25 @@ store, answers with source citations, and includes an end-to-end evaluation pipe
 - Evaluation pipeline with RAGAS core metrics and custom RAG metrics.
 - Saved evaluation reports for dev, holdout, stress, and combined reporting.
 
-## Current Scope
-
-The current branch focuses on one English-only RAG MVP. It does not use the older backend/frontend architecture, SQLite,
-or MySQL. Multilingual behavior was intentionally removed from this branch so the retrieval and evaluation pipeline can
-be tested cleanly in English.
-
-The showcase document is:
-
-```text
-w18347.pdf
-```
-
 ## Architecture
+
+```mermaid
+flowchart LR
+    A["PDF / TXT / Markdown upload"] --> B["PyMuPDF4LLM + text normalization"]
+    B --> C["Structured Markdown + block metadata"]
+    C --> D["Section / table / figure-caption chunks"]
+    D --> E["BAAI/bge-m3 embeddings"]
+    E --> F["Chroma vector store"]
+    F --> G["Document-scoped retrieval"]
+    G --> H["Metadata-aware boosting"]
+    H --> I["Ollama Qwen2.5 grounded prompt"]
+    I --> J["English answer with citations"]
+
+    K["Evaluation CSVs"] --> L["Custom metrics"]
+    K --> M["RAGAS core metrics"]
+    L --> N["Merged result CSV + Markdown summary"]
+    M --> N
+```
 
 ```text
 app.py
@@ -251,13 +280,24 @@ best primary signal for correct refusal behavior.
 
 ## Latest Evaluation Snapshot
 
-The latest full run contains 50 questions per split.
+The benchmark snapshot contains **80 total questions** across dev, holdout, and stress-style evaluation rows for the
+showcase document `w18347.pdf`.
 
-| Dataset | Faithfulness | Context Recall | Context Precision | Answer Relevancy | Hallucination Rate | Latency |
-|---|---:|---:|---:|---:|---:|---:|
-| Dev | 0.8682 | 0.6017 | 0.6094 | 0.7439 | 0.0233 | 5564 ms |
-| Holdout | 0.8177 | 0.6450 | 0.5789 | 0.7498 | 0.0339 | 5217 ms |
-| Stress | 0.8080 | 0.6033 | 0.4789 | 0.2862 | 0.1420 | 6571 ms |
+| Split | Purpose | Core Readout |
+|---|---|---|
+| Dev | Retrieval and prompt debugging | Checks whether parser, chunking, retrieval, and citations work before final reporting |
+| Holdout | Main portfolio benchmark | Used for headline grounded-answer quality and hallucination reporting |
+| Stress | Robustness testing | Tests refusals, unsupported claims, claim verification, and difficult answerable questions |
+
+Headline benchmark results:
+
+| Metric | Result |
+|---|---:|
+| Holdout Faithfulness | 0.8177 |
+| Holdout Answer Relevancy | 0.7498 |
+| Holdout Hallucination Rate | 0.0339 |
+| Dev Faithfulness | 0.8682 |
+| Stress Correct Refusal Behavior | 0.8750 |
 
 Interpretation:
 
